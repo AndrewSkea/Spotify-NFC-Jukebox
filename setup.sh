@@ -42,6 +42,13 @@ spotify-cli config --set-app-client-id $client_id --set-app-client-secret $clien
 echo "The next command will open a browser and authenticate this command line for use with your account"
 spotify-cli devices
 
+echo "Create the NFC Read service"
+cd nfc-handles
+cp Read.py ReadProd.py
+export READ_SCRIPT_PATH="$(pwd)/ReadProd.py"
+envsubst < "nfc_read.service.template" > "nfc_read.service"
+
+
 cd ../jukebox-admin
 python3 -m venv venv
 source venv/bin/activate
