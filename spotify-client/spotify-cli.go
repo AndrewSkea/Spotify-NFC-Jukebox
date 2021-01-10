@@ -196,9 +196,15 @@ func handlePlay(c *cli.Context) error {
 			if strings.Contains(id, search) ||
 				strings.Contains(name, search) ||
 				strings.Contains(t, search) {
-
-				Spotify.PlayOnDevice(d)
-				return nil
+					
+					if uri_string != "" {
+						uri := Spotify.StringToURI(uri_string)
+						Spotify.PlayURIOnDevice(d, uri)
+						return nil
+					} else {
+						Spotify.PlayOnDevice(d)
+						return nil
+					}
 			}
 		}
 		fmt.Printf("Could not find any devices '%s'.\n", device)

@@ -226,6 +226,23 @@ func (spotify *Spotify) PlayOnDevice(device Device) {
 	handlePlaybackAPIErrorScenarios("PlayOnDevice", resp)
 }
 
+func (spotify *Spotify) PlayURIOnDevice(device Device, uri SpotifyURI) {
+	body := utils.FormatString(`{"context_uri":"%s"}`, string(uri))
+	// If URI is a track, different kind of body
+	if strings.HasPrefix(string(uri), "spotify:track") {
+		body = utils.FormatString(`{"uris":["%s"]}`, string(uri))
+	}
+	URL := utils.FormatString(
+		"https://api.spotify.com/v1/me/player/play?device_id=%s",
+		device.ID,
+	)
+	headers := map[string]string{
+		"Authorization": "Bearer " + spotify.tokens.UserAccessToken,
+	}
+	resp, _ := utils.MakeHTTPRequest("PUT", URL, headers, body)
+	handlePlaybackAPIErrorScenarios("PlayURI", resp)
+}
+
 // PlayURI starts playing the specified URI on the active device, if one exists. If not it
 // tries to play on the first device that it comes across from the Devices API.
 func (spotify *Spotify) PlayURI(uri SpotifyURI) {

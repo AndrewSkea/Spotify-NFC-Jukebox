@@ -1,4 +1,6 @@
-echo "Install necessary packages for CLI interface"
+echo "This assumes you have at least python3 installed as well as a working and connected NFC HAT for the raspberry pi"
+echo "This script will use a pre-built binary which will be added to /usr/local/bin"
+echo "If you would like to re-build the spotify-client, you must have GO installed, then run the build_app.sh script in the spotify-client/ directory"
 
 echo "Installing Raspotify"
 sudo apt-get -y install curl apt-transport-https
@@ -23,11 +25,7 @@ echo "Finished installing raspotify"
 
 echo "Now install spotify-cli"
 
-cd spotify-client
-
-echo "Building to /usr/local/bin. If this doesn't work, please run the following command with another directory and add the path you chose to your PATH variable (in ~/.bashrc):"
-echo "cd spotify-client && GOBIN=<PATH_YOU_CHOSE> go install && echo \"export PATH=$PATH:<PATH_YOU_CHOSE>\" >> ~/.bashrc"
-GOBIN=/usr/local/bin go install
+cp spotify-client/bin/spotify-cli /usr/local/bin
 
 echo "Follow these steps on your web browser:"
 echo "1. Go to the developer Spotify dashboard (https://developer.spotify.com/dashboard/)
@@ -43,5 +41,14 @@ spotify-cli config --set-app-client-id $client_id --set-app-client-secret $clien
 
 echo "The next command will open a browser and authenticate this command line for use with your account"
 spotify-cli devices
+
+cd ../jukebox-admin
+python3 -m venv venv
+source venv/bin/activate
+pip3 install -r ../requirements.txt
+
+echo "Running web service for jukebox admin"
+sudo service jukebox start
+
 
 echo "You are done!! Go to http://localhost:8000 to view the admin page or, if on another device http://raspberry.local:8000"

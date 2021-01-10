@@ -1,5 +1,10 @@
 # Spotify-Cli User Manual
 
+#### DISCLAIMER
+#### This package was initially created here https://github.com/charlesyu108/spotify-cli
+#### It has been added to this repository in order t omake slight changes, include a built binary and for general ease of downloading just one package
+
+
 A system-agnostic command line utility for controlling playback on Spotify.
 
 ![Spotify-CLI demo](assets/demo.gif)
