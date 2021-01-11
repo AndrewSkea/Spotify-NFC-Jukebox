@@ -1,5 +1,0 @@
-flask
-spotify-cli==0.3.7
-requests
-mfrc522
-RPi.GPIO
