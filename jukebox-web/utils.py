@@ -1,5 +1,6 @@
 import multiprocessing.pool
 import functools
+import subprocess
 
 import sys
 import RPi.GPIO as GPIO
@@ -25,7 +26,11 @@ def timeout(max_timeout):
 
 @timeout(30)
 def write_spotify_uri(spotify_uri):
+    output = subprocess.check_output("sudo service nfc_read stop", shell=True)
+    print(output.decode("utf-8"))
     reader.write(str(spotify_uri))
+    output = subprocess.check_output("sudo service nfc_read start", shell=True)
+    print(output.decode("utf-8"))
     return True
 
 @timeout(30)
