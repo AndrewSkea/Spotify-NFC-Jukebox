@@ -4,6 +4,9 @@ __pycache__/
 *$py.class
 .vscode/
 
+*.service
+read-service/ReadProd.py
+
 # C extensions
 *.so
 
