@@ -1,4 +1,7 @@
-flask
+Flask==0.12.2
+flask-socketio
+eventlet==0.17.4
+gunicorn==18.0.0
 spotify-cli==0.3.7
 requests
 mfrc522==0.0.7

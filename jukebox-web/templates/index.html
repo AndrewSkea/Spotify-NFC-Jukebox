@@ -1,32 +1,96 @@
 {% extends "base.html" %}
 {% block title %}Home Page{% endblock %}
 {% block content %}
-<h1>Test</h1>
-<input type="text" placeholder="Enter Spotify URI" id="myInput">
-<button type="button" onclick="getInputValue();">Get Value</button>
-<p id="update_box">Starting</p>
-<script>
-    function makeGetRequest(path) {
-        document.getElementById("myInput").innerHTML  = "Tap your NFC card to the NFC Reader";
-        return new Promise(function (resolve, reject) { 
-            axios.get(path).then( 
-                (response) => { 
-                    var result = response.data; 
-                    console.log('Processing Request'); 
-                    resolve(result); 
-                }, 
-                    (error) => { 
-                    reject(error); 
-                } 
-            ); 
-        }); 
-    } 
-    
-    async function getInputValue() { 
-        var inputVal = document.getElementById("myInput").value;
-        var result = await makeGetRequest('/write/' + inputVal); 
-        console.log(result.result);
-    }
-</script>
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/all.css">
+
+
+<div class="container">
+<br>  <h1 class="text-center">Spotify & RaspberryPi Jukebox Dashboard</h1>
+<hr>
+<br>
+<br>
+<div class="row top-row">
+	<aside class="col-sm-12">
+		<div class="card">
+			<article class="card-body">
+				<h4 class="card-title mb-4 mt-1">About</h4>
+				<hr>
+				<p>Welcome to the dashboard that controls the Jukebox! From here, you can write a Spotify URI to a NFC Card, Read from an NFC card to see what's on there and finall, update your username and password to login to Spotify.</p>
+			</article>
+		</div> <!-- card.// -->
+	</aside>
+</div>
+<div class="row">
+	<aside class="col-sm-4">
+<div class="card">
+<article class="card-body">
+<h4 class="card-title mb-4 mt-1">Write URI to NFC Card</h4>
+<hr>
+  <form id="write-form" onsubmit="startWrite()">
+	<div class="form-group">
+    	<label>Enter Spotify URI</label>
+        <input id="input_box" name="" class="form-control" placeholder="Spotify URI" type="text" required>
+	</div>
+	<div class="form-group">
+        <button type="submit" class="btn btn-primary btn-block"> Write  </button>
+    </div>
+  </form>
+  <h4 id="update_write_box" class="card-title mb-4 mt-1"></h4>
+</article>
+</div> <!-- card.// -->
+
+	</aside> <!-- col.// -->
+	<aside class="col-sm-4">
+
+<div class="card">
+<article class="card-body">
+	<h4 class="card-title mb-4 mt-1">Update Spotify Auth</h4>
+	<hr>
+	<form id="update-auth-form">
+		<div class="form-group">
+			<div class="input-group">
+				<div class="input-group-prepend">
+					<span class="input-group-text"> <i class="fa fa-user"></i> </span>
+				 </div>
+				<input id="spotify-username" name="" class="form-control" placeholder="Username" type="text">
+			</div> <!-- input-group.// -->
+			</div> <!-- form-group// -->
+		<div class="form-group">
+			<div class="input-group">
+				<div class="input-group-prepend">
+					<span class="input-group-text"> <i class="fa fa-lock"></i> </span>
+					</div>
+				<input id="spotify-password" class="form-control" placeholder="******" type="password">
+			</div> <!-- input-group.// -->
+		</div> <!-- form-group// -->
+	<div class="form-group">
+		<button type="submit" class="btn btn-primary btn-block"> Update  </button>
+	</div> <!-- form-group// -->                                                                                            
+</form>
+</article>
+</div> <!-- card.// -->
+
+	</aside> <!-- col.// -->
+	<aside class="col-sm-4">
+
+<div class="card">
+	<article class="card-body">
+	<h4 class="card-title mb-4 mt-1">Read NFC Card</h4>
+	<p class="text-center">Click on Read then place your RFID card next to the NFC reader</p>
+	<hr>
+		<form id="read-form" onsubmit="startRead()">
+		<div class="form-group">
+			<button type="submit" class="btn btn-primary btn-block"> Read  </button>
+		</div>
+		</form>
+		<h4 id="update_read_box" class="card-title mb-4 mt-1"></h4>
+	</article>
+	</div> <!-- card.// -->
+
+	</aside> <!-- col.// -->
+</div> <!-- row.// -->
+
+</div>
 
 {% endblock %}
