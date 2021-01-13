@@ -57,6 +57,7 @@ def write_uri(spotify_uri):
     return Response("{'status':'started'}", status=202, mimetype='application/json')
 
 
+@app.route('/update-auth/<username>/<password>', methods=['POST'])
 def update_spotify_auth(username, password):
     if username != "" and password != "":
 
@@ -73,6 +74,7 @@ def update_spotify_auth(username, password):
         return {"status": "invaliad input for username or password"}
 
 
+@app.route('/update-spotify-app-auth/<client_id>/<client_secret>', methods=['POST'])
 def update_spotify_app_auth(client_id, client_secret):
     if client_id != "" and client_secret != "":
 
@@ -89,6 +91,7 @@ def update_spotify_app_auth(client_id, client_secret):
         return {"status": "invaliad input for client_id or client_secret"}
 
 
+@app.route('/update-sonos/<sonos_room>', methods=['POST'])
 def update_sonos_room(sonos_room):
     if sonos_room != "":
         with open("settings.json", "r") as jsonFile:

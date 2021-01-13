@@ -21,6 +21,18 @@
 		</div> <!-- card.// -->
 	</aside>
 </div>
+<div class="row top-row">
+	<aside class="col-sm-12">
+		<div class="card">
+			<article class="card-body">
+				<h4 class="card-title mb-4 mt-1">Currently Playing</h4>
+				<hr>
+				<h2 id="current-track">Current Track: Fly me to the Moon, Frankie Boy</h2>
+				<button id="next-button" class="btn btn-primary btn-block" onclick="nextSong()" > Next Song </button>
+			</article>
+		</div> <!-- card.// -->
+	</aside>
+</div>
 <div class="row">
 	<aside class="col-sm-4">
 <div class="card">
@@ -64,10 +76,40 @@
 				<input id="spotify-password" class="form-control" placeholder="******" type="password">
 			</div> <!-- input-group.// -->
 		</div> <!-- form-group// -->
-	<div class="form-group">
-		<button type="submit" class="btn btn-primary btn-block"> Update  </button>
-	</div> <!-- form-group// -->                                                                                            
-</form>
+		<div class="form-group">
+			<button type="submit" class="btn btn-primary btn-block"> Update  </button>
+		</div> <!-- form-group// -->                                                                                            
+	</form>
+	<form id="update-client-app-form">
+		<div class="form-group">
+			<div class="input-group">
+				<div class="input-group-prepend">
+					<span class="input-group-text"> <i class="fa fa-user"></i> </span>
+				 </div>
+				<input id="spotify-client-id" name="" class="form-control" placeholder="Client ID" type="text">
+			</div> <!-- input-group.// -->
+			</div> <!-- form-group// -->
+		<div class="form-group">
+			<div class="input-group">
+				<div class="input-group-prepend">
+					<span class="input-group-text"> <i class="fa fa-lock"></i> </span>
+					</div>
+				<input id="spotify-client-secret" class="form-control" placeholder="Client Secret" type="text">
+			</div> <!-- input-group.// -->
+		</div> <!-- form-group// -->
+		<div class="form-group">
+			<button type="submit" class="btn btn-primary btn-block"> Update  </button>
+		</div> <!-- form-group// -->                                                                                            
+	</form>
+	<form id="sonos-room-form">
+		<div class="form-group">
+			<label>Enter Default Sonos Room</label>
+			<input id="sonos-room-input" name="" class="form-control" placeholder="Living Room" type="text" required>
+		</div>
+		<div class="form-group">
+			<button type="submit" class="btn btn-primary btn-block"> Update  </button>
+		</div>
+	  </form>
 </article>
 </div> <!-- card.// -->
 

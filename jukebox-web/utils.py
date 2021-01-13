@@ -90,7 +90,8 @@ def update_files_from_settings():
     output = subprocess.check_output(cmd, shell=True)
     print(output)
 
-    # Update settings.json in sonos-http-app
+    # Update presets.json && settings.json in node-sonos-http-app
+    # Update presets for sonos room
     with open("../node-sonos-http-api/presets/presets.json", "r") as jsonFile:
         data = json.load(jsonFile)
 
@@ -103,8 +104,8 @@ def update_files_from_settings():
 
     with open("../node-sonos-http-api/presets/presets.json", "w") as jsonFile:
         json.dump(data, jsonFile)
-    restart_sonos_api()
 
+    # Update client id and secret in settings.js
     match_string = 'announceVolume: 40,'
     insert_string = {"clientId": '"' + client_id + '"', "clientSecret": '"' + client_secret + '"'}
     insert_string = 'spotify: {},\n'.format(str(insert_string))
