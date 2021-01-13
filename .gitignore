@@ -158,3 +158,5 @@ fabric.properties
 
 # static files collected by django
 /staticfiles/
+
+test.py

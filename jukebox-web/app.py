@@ -1,9 +1,10 @@
 from multiprocessing import Pool, context
 from multiprocessing.context import TimeoutError
 import time
+import json
 from flask import Flask, render_template, Response, jsonify
 
-from utils import timeout
+from utils import timeout, start_read_service, stop_read_service
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'UERAIJFajjdlierjlefwkfjelmm982374EFA'
@@ -19,10 +20,12 @@ def add_headers(response):
     return response
 
 
-@timeout(10)
+@timeout(30)
 def worker(spotify_uri):
     print('Starting {}'.format(spotify_uri))
-    time.sleep(5)
+    stop_read_service()
+    reader.write(str(spotify_uri))
+    start_read_service()
     print("Done: {}".format(spotify_uri))
     return spotify_uri
 
@@ -39,6 +42,7 @@ def check_progress():
             status_resp = "Write operation has timed out!"
     return jsonify({"status": status_resp})
 
+
 @app.route('/write-uri/<spotify_uri>', methods=['POST'])
 def write_uri(spotify_uri):
     pool = Pool()
@@ -48,15 +52,46 @@ def write_uri(spotify_uri):
 
 
 def update_spotify_auth(username, password):
-    lines = open('/etc/default/raspotify').read().splitlines()
-    line_to_rep = None
-    for i, line in enumerate(lines):
-        print(line)
-        if line.startswith("OPTIONS"):
-            print(line)
-            line_to_rep = i
-    lines[i-1] = "OPTIONS=\" --username andrewnew --passord dkfjsalkdjfksdj\""
-    open('/etc/default/raspotify','w').write('\n'.join(lines))
+    if username != "" and password != "":
+
+        with open("settings.json", "r") as jsonFile:
+            data = json.load(jsonFile)
+
+        data["spotify_username"] = username
+        data["spotify_password"] = password
+
+        with open("settings.json", "w") as jsonFile:
+            json.dump(data, jsonFile)
+    else:
+        return {"status": "invaliad input for username or password"}
+
+
+def update_spotify_app_auth(client_id, client_secret):
+    if client_id != "" and client_secret != "":
+
+        with open("settings.json", "r") as jsonFile:
+            data = json.load(jsonFile)
+
+        data["spotify_client_id"] = client_id
+        data["spotify_client_secret"] = client_secret
+
+        with open("settings.json", "w") as jsonFile:
+            json.dump(data, jsonFile)
+    else:
+        return {"status": "invaliad input for client_id or client_secret"}
+
+
+def update_sonos_room(sonos_room):
+    if sonos_room != "":
+        with open("settings.json", "r") as jsonFile:
+            data = json.load(jsonFile)
+
+        data["sonos_room"] = sonos_room
+
+        with open("settings.json", "w") as jsonFile:
+            json.dump(data, jsonFile)
+    else:
+        return {"status": "invaliad input for sonos_room"}
 
 
 @app.route('/', methods=['GET'])
@@ -64,4 +99,4 @@ def sessions():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=8000)
