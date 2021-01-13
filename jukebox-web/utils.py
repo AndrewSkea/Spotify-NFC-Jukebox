@@ -3,11 +3,6 @@ import functools
 import subprocess
 import json
 
-import RPi.GPIO as GPIO
-from mfrc522 import SimpleMFRC522
-
-GPIO.setwarnings(False)
-reader = SimpleMFRC522()
 
 def timeout(max_timeout):
     """Timeout decorator, parameter in seconds."""
@@ -24,6 +19,18 @@ def timeout(max_timeout):
     return timeout_decorator
 
 
+def restart_sonos_api():
+    output = subprocess.check_output("pm2 restart sonos-api-service", shell=True)
+    output = output.decode("utf-8")
+    return True if "restarted" in output else False
+
+
+def restart_raspotify_service():
+    output = subprocess.check_output("sudo service raspotify restart", shell=True)
+    output = output.decode("utf-8")
+    return True if "" in output else False
+
+
 def stop_read_service():
     output = subprocess.check_output("pm2 stop read-service", shell=True)
     output = output.decode("utf-8")
@@ -34,6 +41,27 @@ def start_read_service():
     output = subprocess.check_output("pm2 start read-service", shell=True)
     output = output.decode("utf-8")
     return True if "started" in output else False
+
+
+def restart_all_services():
+    restart_sonos_api()
+    restart_raspotify_service()
+    stop_read_service()
+    start_read_service()
+
+
+def insert_line(file_path, match_string, insert_string):
+    with open(file_path, 'r+') as fd:
+        contents = fd.readlines()
+        if match_string in contents[-1]:  # Handle last line to prevent IndexError
+            contents.append(insert_string)
+        else:
+            for index, line in enumerate(contents):
+                if match_string in line and insert_string not in contents[index + 1]:
+                    contents.insert(index + 1, insert_string)
+                    break
+        fd.seek(0)
+        fd.writelines(contents)
 
 
 def update_files_from_settings():
@@ -55,10 +83,12 @@ def update_files_from_settings():
             line_to_rep = i
     lines[line_to_rep-1] = "OPTIONS=\" --username {} --password {}\"".format(username, password)
     open('/etc/default/raspotify','w').write('\n'.join(lines))
+    restart_raspotify_service()
 
     # Update spotify-cli auth
     cmd = "spotify-cli config --set-app-client-id {} --set-app-client-secret {} --set-redirect-port 5555".format(client_id, client_secret)
     output = subprocess.check_output(cmd, shell=True)
+    print(output)
 
     # Update settings.json in sonos-http-app
     with open("../node-sonos-http-api/presets/presets.json", "r") as jsonFile:
@@ -73,6 +103,11 @@ def update_files_from_settings():
 
     with open("../node-sonos-http-api/presets/presets.json", "w") as jsonFile:
         json.dump(data, jsonFile)
+    restart_sonos_api()
 
-    'spotify: {"clientId": "{}", "clientSecret": "{}" }'.format(client_id, client_secret)
-
+    match_string = 'announceVolume: 40,'
+    insert_string = {"clientId": '"' + client_id + '"', "clientSecret": '"' + client_secret + '"'}
+    insert_string = 'spotify: {},\n'.format(str(insert_string))
+    print(insert_string)
+    insert_line("../node-sonos-http-api/settings.json", match_string, insert_string)
+    restart_sonos_api()

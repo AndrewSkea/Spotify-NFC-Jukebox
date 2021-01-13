@@ -4,7 +4,13 @@ import time
 import json
 from flask import Flask, render_template, Response, jsonify
 
-from utils import timeout, start_read_service, stop_read_service
+from utils import timeout, start_read_service, stop_read_service, update_files_from_settings
+
+import RPi.GPIO as GPIO
+from mfrc522 import SimpleMFRC522
+
+GPIO.setwarnings(False)
+reader = SimpleMFRC522()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'UERAIJFajjdlierjlefwkfjelmm982374EFA'
@@ -62,6 +68,7 @@ def update_spotify_auth(username, password):
 
         with open("settings.json", "w") as jsonFile:
             json.dump(data, jsonFile)
+        update_files_from_settings()
     else:
         return {"status": "invaliad input for username or password"}
 
@@ -77,6 +84,7 @@ def update_spotify_app_auth(client_id, client_secret):
 
         with open("settings.json", "w") as jsonFile:
             json.dump(data, jsonFile)
+        update_files_from_settings()
     else:
         return {"status": "invaliad input for client_id or client_secret"}
 
@@ -90,6 +98,7 @@ def update_sonos_room(sonos_room):
 
         with open("settings.json", "w") as jsonFile:
             json.dump(data, jsonFile)
+        update_files_from_settings()
     else:
         return {"status": "invaliad input for sonos_room"}
 
