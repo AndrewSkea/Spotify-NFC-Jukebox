@@ -15,7 +15,7 @@ curl -s -L https://gitlab.com/AndrewSkea/spotify-nfc-jukebox/initial_setup.sh | 
 ```
 
 ### Credit
-Note this project is dependant on other projects and all issues related to their services should be brought up with them and I would like to say well done for such great open source work on their part!
+Note this project is dependant on other projects and all likes/comments/issues related to their services should be brought up with them and I would like to say well done and thank you for such great open source work on their part!
 
 * Sonos Controller: https://github.com/jishi/node-sonos-http-api
 * Spotify CLI: https://github.com/ledesmablt/spotify-cli
