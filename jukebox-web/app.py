@@ -43,14 +43,17 @@ def worker(spotify_uri="", is_read=False):
         start_read_service()
         print("Done: {}".format(spotify_uri))
         return [spotify_uri]
-
+        
 
 @app.route("/check-nfc-progress", methods=['GET'])
 def check_progress():
     status_resp = "Place RFID Card on Reader"
     if pool_result.ready():
+        print("Pool is ready")
         try:
-            ret = pool_result.get(timeout=1)[0]
+            ret = pool_result.get(timeout=1)
+            print(ret)
+            ret = ret[0] if ret else None
             if ret is not None:
                 print("check_progress: " + str(ret))
                 if len(ret) == 1:
@@ -68,15 +71,36 @@ def write_uri(spotify_uri):
     global pool_result
     pool_result = pool.map_async(worker, [spotify_uri])
     return Response("{'status':'started'}", status=202, mimetype='application/json')
+    
+
+@app.route("/check-read-progress", methods=['GET'])
+def check_read_progress():
+    cid, text, status = None, None, "Place RFID Card on Reader"
+    for i in range(10):
+        cid, text = reader.read_no_block()
+        if cid:
+            break
+            
+    if cid and text:
+        start_read_service()
+        status = "success"
+    return {"status": status, "id": cid, "uri": text}
 
 
 @app.route('/read-uri', methods=['GET'])
 def read_uri():
     print("Reading endpoint called")
-    pool = Pool()
-    global pool_result
-    pool_result = pool.map_async(worker, ["", True])
-    return Response("{'status':'started'}", status=202, mimetype='application/json')
+    stop_read_service()
+    ret = check_read_progress()
+    return ret
+    
+#@app.route('/read-uri', methods=['GET'])
+#def read_uri():
+#    print("Reading endpoint called")
+#    pool = Pool()
+#    global pool_result
+#    pool_result = pool.map_async(read_worker, [])
+#    return Response("{'status':'started'}", status=202, mimetype='application/json')
 
 
 @app.route('/get-zone-list', methods=['GET'])

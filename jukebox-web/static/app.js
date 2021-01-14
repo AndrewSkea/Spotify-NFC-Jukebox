@@ -8,7 +8,7 @@ $(document).ready(function() {
     cur_track_artist = document.getElementById('cur_track_artist');
     next_track_title = document.getElementById('next_track_title');
     next_track_artist = document.getElementById('next_track_artist');
-    note = document.getElementById("note");
+    updateCurrentState()
 
     $("#write-form").submit(function(e) {
         e.preventDefault();
@@ -31,6 +31,7 @@ function alert(message, is_error=False){
   THE CHECK NFC PROGRESS FUNCTION (READ / WRITE)
 */
 function checkNFCProgress(box_to_update){
+    console.log("Getting Write progress");
     fetch("/check-nfc-progress")
     .then(res => {
     try {
@@ -48,6 +49,35 @@ function checkNFCProgress(box_to_update){
     .then (resJson => {
         box_to_update.innerHTML = resJson.status;
     return resJson.data
+    })
+    .catch(err => console.log(err))
+}
+
+function checkReadProgress(_callback){
+    console.log("Getting Read progress");
+    fetch("/check-read-progress")
+    .then(res => {
+    try {
+        if (res.ok) {
+        return res.json()
+        } else {
+        throw new Error(res)
+        }
+    }
+    catch (err) {
+        console.log(err.message)
+        return {"status": "Failed"}
+    }
+    })
+    .then (resJson => {
+        if (resJson.status == "success"){
+            update_read_box.innerHTML = resJson["uri"]
+            _callback()
+        } else {
+            update_read_box.innerHTML = resJson.status;
+            _callback()
+        }
+    _callback()
     })
     .catch(err => console.log(err))
 }
@@ -97,11 +127,32 @@ function startRead() {
     .then(res => {
     try {
         if (res.ok) {
-            checkNFCProgress(update_read_box);
+            
+            function firstFunction(_callback){
+                // do some asynchronous work
+                // and when the asynchronous stuff is complete
+                _callback();    
+            }
+
+            function secondFunction(){
+                // call first function and pass in a callback function which
+                // first function runs when it has completed
+                firstFunction(function() {
+                    console.log('huzzah, I\'m done!');
+                });    
+            }
+            
+            for (let step = 0; step < 30; step++) {
+              checkReadProgress(update_read_box)
+            }
+            
+            checkReadProgress(update_read_box);
             var callCount = 1;
+            var ret = false;
             var repeater = setInterval(function () {
-                if (callCount < 10) {
-                checkNFCProgress(update_read_box);
+                if (callCount < 30 && ret == false) {
+                ret = checkReadProgress(update_read_box);
+                console.log(ret)
                 callCount += 1;
                 } else {
                 clearInterval(repeater);

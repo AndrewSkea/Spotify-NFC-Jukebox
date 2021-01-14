@@ -39,7 +39,7 @@
 <article class="card-body">
 <h4 class="card-title mb-4 mt-1">Write URI to NFC Card</h4>
 <hr>
-  <form id="write-form" onsubmit="startWrite()">
+  <form id="write-form" onsubmit="startWrite(); return false;">
 	<div class="form-group">
     	<label>Enter Spotify URI</label>
         <input id="uri_input_box" name="" class="form-control" placeholder="Spotify URI" type="text" required>
