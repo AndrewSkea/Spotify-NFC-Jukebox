@@ -4,7 +4,7 @@ import subprocess
 import json
 
 def get_room_name():
-    with open("../jukebox-web/settings.json", "r") as jsonFile:
+    with open("/home/pi/sonos-spotify-jukebox/jukebox-web/settings.json", "r") as jsonFile:
         data = json.load(jsonFile)
     return data["sonos_room"]
 
@@ -75,7 +75,7 @@ def update_files_from_settings():
     username = data["spotify_username"]
     password = data["spotify_password"]
     client_id = data["spotify_client_id"]
-    client_secret = data["spotify_username"]
+    client_secret = data["spotify_client_secret"]
     sonos_room = data["sonos_room"]
 
     # Update the username and password for raspotify
@@ -86,7 +86,11 @@ def update_files_from_settings():
         if line.startswith("OPTIONS"):
             print(line)
             line_to_rep = i
-    lines[line_to_rep-1] = "OPTIONS=\" --username {} --password {}\"".format(username, password)
+    ln = 'OPTIONS=" --username {} --password {}"'.format(username, password)
+    if line_to_rep is None:
+        lines.append(ln)
+    else:
+        lines[line_to_rep-1] = ln
     open('/etc/default/raspotify','w').write('\n'.join(lines))
     restart_raspotify_service()
 
@@ -97,23 +101,28 @@ def update_files_from_settings():
 
     # Update presets.json && settings.json in node-sonos-http-app
     # Update presets for sonos room
-    with open("../node-sonos-http-api/presets/presets.json", "r") as jsonFile:
-        data = json.load(jsonFile)
-
-    data["players"] = [
+    js = """
+    "players": [
         {
-        "roomName": sonos_room,
-        "volume": 10
+        "roomName": {},
+        "volume": 15
         }
-    ]
+    ],
+    "playMode": {
+        "shuffle": "true",
+        "repeat": "all",
+        "crossfade": "false"
+    },
+    "pauseOthers": "false",
 
-    with open("../node-sonos-http-api/presets/presets.json", "w") as jsonFile:
-        json.dump(data, jsonFile)
+    }
+    """.format(sonos_room)
+    open("/home/pi/sonos-spotify-jukebox/node-sonos-http-api/presets/example.json").write(js)
 
     # Update client id and secret in settings.js
     match_string = 'announceVolume: 40,'
     insert_string = {"clientId": '"' + client_id + '"', "clientSecret": '"' + client_secret + '"'}
     insert_string = 'spotify: {},\n'.format(str(insert_string))
     print(insert_string)
-    insert_line("../node-sonos-http-api/settings.json", match_string, insert_string)
+    insert_line("/home/pi/sonos-spotify-jukebox/node-sonos-http-api/settings.js", match_string, insert_string)
     restart_sonos_api()
