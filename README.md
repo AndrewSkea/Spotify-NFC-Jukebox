@@ -5,7 +5,7 @@ Disclaimer: Project still in progress
 ### About 
 This runs a service (on a raspberry pi for example) that listens for NFC cards which have spotify URI written to them. On contact with a connected NFC Reader, it will play your Spotify URI (playlist, track or album) to a Sonos player, or out through the AUX jack (tbc).
 
-Visit the dashbaord following the setup bellow at http://raspberry.local:8000 to finish the installation and provide the necessary authentication.
+Visit the dashbaord from another device connected to your network, after the setup below, at http://raspberry.local:8000 to finish the installation and provide the necessary authentication for the service to work.
 
 
 ### Setup
