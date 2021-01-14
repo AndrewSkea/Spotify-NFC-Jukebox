@@ -10,7 +10,7 @@ reader = SimpleMFRC522()
 
 past_cid = None
 
-with open("../jukebox-web/settings.json", "r") as jsonFile:
+with open("/home/pi/sonos-spotify-jukebox/jukebox-web/settings.json", "r") as jsonFile:
     data = json.load(jsonFile)
 
 room_name = data["sonos_room"] or "Living Room"

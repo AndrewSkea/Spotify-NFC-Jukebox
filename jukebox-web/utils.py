@@ -98,23 +98,8 @@ def update_files_from_settings():
 
     # Update presets.json && settings.json in node-sonos-http-app
     # Update presets for sonos room
-    js = """
-    "players": [
-        {
-        "roomName": {},
-        "volume": 15
-        }
-    ],
-    "playMode": {
-        "shuffle": "true",
-        "repeat": "all",
-        "crossfade": "false"
-    },
-    "pauseOthers": "false",
-
-    }
-    """.format(sonos_room)
-    open("/home/pi/sonos-spotify-jukebox/node-sonos-http-api/presets/example.json").write(js)
+    js = { "players": [{"roomName": sonos_room, "volume": 15}],"playMode": { "shuffle": "true", "repeat": "all", "crossfade": "false" }, "pauseOthers": "false" }
+    open("/home/pi/sonos-spotify-jukebox/node-sonos-http-api/presets/example.json", "w").write(str(js))
 
     # Update client id and secret in settings.js
     match_string = 'announceVolume: 40,'

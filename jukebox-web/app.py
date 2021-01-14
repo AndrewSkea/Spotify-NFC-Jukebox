@@ -76,7 +76,7 @@ def write_uri(spotify_uri):
 @app.route("/check-read-progress", methods=['GET'])
 def check_read_progress():
     cid, text, status = None, None, "Place RFID Card on Reader"
-    for i in range(10):
+    for _ in range(10):
         cid, text = reader.read_no_block()
         if cid:
             break
@@ -93,14 +93,6 @@ def read_uri():
     stop_read_service()
     ret = check_read_progress()
     return ret
-    
-#@app.route('/read-uri', methods=['GET'])
-#def read_uri():
-#    print("Reading endpoint called")
-#    pool = Pool()
-#    global pool_result
-#    pool_result = pool.map_async(read_worker, [])
-#    return Response("{'status':'started'}", status=202, mimetype='application/json')
 
 
 @app.route('/get-zone-list', methods=['GET'])
