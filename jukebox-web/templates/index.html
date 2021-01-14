@@ -2,9 +2,6 @@
 {% block title %}Home Page{% endblock %}
 {% block content %}
 
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/all.css">
-
-
 <div class="container">
 <br>  <h1 class="text-center">Spotify & RaspberryPi Jukebox Dashboard</h1>
 <hr>
@@ -27,7 +24,10 @@
 			<article class="card-body">
 				<h4 class="card-title mb-4 mt-1">Currently Playing</h4>
 				<hr>
-				<h2 id="current-track">Current Track: Fly me to the Moon, Frankie Boy</h2>
+				<h2 id="cur_track_title"></h2>
+				<h2 id="cur_track_artist"></h2>
+				<h2 id="next_track_title"></h2>
+				<h2 id="next_track_artist"></h2>
 				<button id="next-button" class="btn btn-primary btn-block" onclick="nextSong()" > Next Song </button>
 			</article>
 		</div> <!-- card.// -->
@@ -42,7 +42,7 @@
   <form id="write-form" onsubmit="startWrite()">
 	<div class="form-group">
     	<label>Enter Spotify URI</label>
-        <input id="input_box" name="" class="form-control" placeholder="Spotify URI" type="text" required>
+        <input id="uri_input_box" name="" class="form-control" placeholder="Spotify URI" type="text" required>
 	</div>
 	<div class="form-group">
         <button type="submit" class="btn btn-primary btn-block"> Write  </button>
@@ -59,13 +59,13 @@
 <article class="card-body">
 	<h4 class="card-title mb-4 mt-1">Update Spotify Auth</h4>
 	<hr>
-	<form id="update-auth-form">
+	<form id="update-auth-form" action="{{ url_for('update-auth') }}" method="post">
 		<div class="form-group">
 			<div class="input-group">
 				<div class="input-group-prepend">
 					<span class="input-group-text"> <i class="fa fa-user"></i> </span>
 				 </div>
-				<input id="spotify-username" name="" class="form-control" placeholder="Username" type="text">
+				<input id="spotify-username" name="spotify-username" class="form-control" placeholder="Username" type="text">
 			</div> <!-- input-group.// -->
 			</div> <!-- form-group// -->
 		<div class="form-group">
@@ -73,20 +73,20 @@
 				<div class="input-group-prepend">
 					<span class="input-group-text"> <i class="fa fa-lock"></i> </span>
 					</div>
-				<input id="spotify-password" class="form-control" placeholder="******" type="password">
+				<input id="spotify-password" name="spotify-password" class="form-control" placeholder="******" type="password">
 			</div> <!-- input-group.// -->
 		</div> <!-- form-group// -->
 		<div class="form-group">
 			<button type="submit" class="btn btn-primary btn-block"> Update  </button>
 		</div> <!-- form-group// -->                                                                                            
 	</form>
-	<form id="update-client-app-form">
+	<form id="update-client-app-form" action="{{ url_for('update-spotify-app-auth') }}" method="post">
 		<div class="form-group">
 			<div class="input-group">
 				<div class="input-group-prepend">
 					<span class="input-group-text"> <i class="fa fa-user"></i> </span>
 				 </div>
-				<input id="spotify-client-id" name="" class="form-control" placeholder="Client ID" type="text">
+				<input id="spotify-client-id" name="spotify-client-id" class="form-control" placeholder="Client ID" type="text">
 			</div> <!-- input-group.// -->
 			</div> <!-- form-group// -->
 		<div class="form-group">
@@ -94,17 +94,17 @@
 				<div class="input-group-prepend">
 					<span class="input-group-text"> <i class="fa fa-lock"></i> </span>
 					</div>
-				<input id="spotify-client-secret" class="form-control" placeholder="Client Secret" type="text">
+				<input id="spotify-client-secret" name="spotify-client-secret" class="form-control" placeholder="Client Secret" type="text">
 			</div> <!-- input-group.// -->
 		</div> <!-- form-group// -->
 		<div class="form-group">
 			<button type="submit" class="btn btn-primary btn-block"> Update  </button>
 		</div> <!-- form-group// -->                                                                                            
 	</form>
-	<form id="sonos-room-form">
+	<form id="sonos-room-form" action="{{ url_for('update-sonos') }}" method="post">
 		<div class="form-group">
 			<label>Enter Default Sonos Room</label>
-			<input id="sonos-room-input" name="" class="form-control" placeholder="Living Room" type="text" required>
+			<input id="sonos-room" name="sonos-room" class="form-control" placeholder="Living Room" type="text" required>
 		</div>
 		<div class="form-group">
 			<button type="submit" class="btn btn-primary btn-block"> Update  </button>
@@ -123,7 +123,7 @@
 	<hr>
 		<form id="read-form" onsubmit="startRead()">
 		<div class="form-group">
-			<button type="submit" class="btn btn-primary btn-block"> Read  </button>
+			<button type="submit" class="btn btn-primary btn-block"> Read </button>
 		</div>
 		</form>
 		<h4 id="update_read_box" class="card-title mb-4 mt-1"></h4>

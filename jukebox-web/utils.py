@@ -3,6 +3,11 @@ import functools
 import subprocess
 import json
 
+def get_room_name():
+    with open("../jukebox-web/settings.json", "r") as jsonFile:
+        data = json.load(jsonFile)
+    return data["sonos_room"]
+
 
 def timeout(max_timeout):
     """Timeout decorator, parameter in seconds."""
