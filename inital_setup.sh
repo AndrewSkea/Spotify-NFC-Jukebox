@@ -10,6 +10,9 @@ sudo apt upgrade
 sudo apt-get install -y curl apt-transport-https nodejs npm raspotify
 sudo npm install -y -g pm2
 
+echo "dtparam=spi=on" | sudo tee -a /boot/config.txt
+sudo dtparam spi=on
+
 nodejs -v
 pm2 status
 
@@ -21,11 +24,12 @@ echo "Starting installation in $HOME_DIR"
 function get_jukebox() {
   cd $HOME_DIR
   git clone https://gitlab.com/AndrewSkea/spotify-nfc-jukebox.git .
-  sudo -f cp spotify-client/bin/spotify-cli /usr/local/bin
-  [ -x "$(command -v spotify-cli)" ]
+  sudo cp -f spotify-client/bin/spotify-cli /usr/local/bin
+  sudo chmod +x /usr/local/bin/spotify-cli
+  [ -x "$(command -v spotify-cli)" ] && echo "spotify-cli installed"
   output="$(spotify-cli devices)"
-  echo $output
-  [[ $output =~ "raspotify" ]] && echo "spotifi-cli successfull installed"
+  echo "Authentication for the spotify-cli service will be done in http://localhost:8000 after reboot"
+  mkdir -p $HOME_DIR/logs
 }
 
 function create_python_env() {
@@ -48,19 +52,19 @@ function get_sonos_http_api() {
 function run_sonos_http_api() {
   cd $HOME_DIR/node-sonos-http-api
   npm install --production
-  pm2 start npm --name "sonos-api-service" -- start
+  pm2 start npm --name "sonos-api-service" --log $HOME_DIR/logs/sonos_api_service.log  -- start
 }
 
 function start_read_service() {
   cd $HOME_DIR/read-service
   activate_env
-  pm2 start Read.py --name "read-service" --interpreter $HOME_DIR/jukeboxenv/bin/python
+  pm2 start Read.py --name "read-service" --log $HOME_DIR/logs/read_service.log --interpreter $HOME_DIR/jukeboxenv/bin/python
 }
 
 function start_jukebox_admin(){
   cd $HOME_DIR/jukebox-web
   activate_env
-  pm2 start app.py --name "jukebox-service" --interpreter $HOME_DIR/jukeboxenv/bin/python
+  pm2 start app.py --name "jukebox-service" --log $HOME_DIR/logs/jukebox_service.log --interpreter $HOME_DIR/jukeboxenv/bin/python
 }
 
 get_jukebox
