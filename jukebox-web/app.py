@@ -32,11 +32,13 @@ def worker(spotify_uri="", is_read=False):
     print('Starting {}'.format(spotify_uri))
     stop_read_service()
     if is_read:
+        print("worker: is read")
         nfc_id, text = reader.read()
         start_read_service()
         print("Done: ID:{} Text:{}".format(nfc_id, text))
         return [nfc_id, text]
     else:
+        print("worker: is not read")
         reader.write(str(spotify_uri))
         start_read_service()
         print("Done: {}".format(spotify_uri))
@@ -50,6 +52,7 @@ def check_progress():
         try:
             ret = pool_result.get(timeout=1)[0]
             if ret is not None:
+                print("check_progress: " + str(ret))
                 if len(ret) == 1:
                     status_resp = "Written {} to RFID card".format(ret)
                 if len(ret) == 2:
@@ -69,6 +72,7 @@ def write_uri(spotify_uri):
 
 @app.route('/read-uri', methods=['GET'])
 def read_uri():
+    print("Reading endpoint called")
     pool = Pool()
     global pool_result
     pool_result = pool.map_async(worker, ["", True])
@@ -95,10 +99,10 @@ def read_current_state():
     if req.json():
         j = req.json()
         to_ret = {
-            "cur_playing_title": j["current_track"]["title"],
-            "cur_playing_artist": j["current_track"]["artist"],
-            "next_playing_title": j["nextTrack"]["title"],
-            "next_playing_artist": j["nextTrack"]["artist"]
+            "cur_track_title": j["currentTrack"].get("title", ""),
+            "cur_track_artist": j["currentTrack"].get("artist", ""),
+            "next_track_title": j["nextTrack"].get("title", ""),
+            "next_track_artist": j["nextTrack"].get("artist", "")
         }
         ret = {"status": "success", "state": to_ret}
     return ret

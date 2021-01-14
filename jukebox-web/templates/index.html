@@ -59,7 +59,7 @@
 <article class="card-body">
 	<h4 class="card-title mb-4 mt-1">Update Spotify Auth</h4>
 	<hr>
-	<form id="update-auth-form" action="{{ url_for('update-auth') }}" method="post">
+	<form id="update-auth-form" action="{{ url_for('update_spotify_auth') }}" method="post">
 		<div class="form-group">
 			<div class="input-group">
 				<div class="input-group-prepend">
@@ -80,7 +80,7 @@
 			<button type="submit" class="btn btn-primary btn-block"> Update  </button>
 		</div> <!-- form-group// -->                                                                                            
 	</form>
-	<form id="update-client-app-form" action="{{ url_for('update-spotify-app-auth') }}" method="post">
+	<form id="update-client-app-form" action="{{ url_for('update_spotify_app_auth') }}" method="post">
 		<div class="form-group">
 			<div class="input-group">
 				<div class="input-group-prepend">
@@ -101,7 +101,7 @@
 			<button type="submit" class="btn btn-primary btn-block"> Update  </button>
 		</div> <!-- form-group// -->                                                                                            
 	</form>
-	<form id="sonos-room-form" action="{{ url_for('update-sonos') }}" method="post">
+	<form id="sonos-room-form" action="{{ url_for('update_sonos_room') }}" method="post">
 		<div class="form-group">
 			<label>Enter Default Sonos Room</label>
 			<input id="sonos-room" name="sonos-room" class="form-control" placeholder="Living Room" type="text" required>
@@ -121,7 +121,7 @@
 	<h4 class="card-title mb-4 mt-1">Read NFC Card</h4>
 	<p class="text-center">Click on Read then place your RFID card next to the NFC reader</p>
 	<hr>
-		<form id="read-form" onsubmit="startRead()">
+		<form id="read-form" onsubmit="startRead(); return false;">
 		<div class="form-group">
 			<button type="submit" class="btn btn-primary btn-block"> Read </button>
 		</div>

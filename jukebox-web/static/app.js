@@ -79,9 +79,11 @@ function startWrite() {
         clearInterval(repeater);
         }
     }, 1000);
+    return false;
     })
     .catch(function (error) {
     console.log('Request failed', error);
+    return false;
     });
 
 }
@@ -90,54 +92,62 @@ function startWrite() {
 /*
   THE READING FUNCTIONS
 */
-function startRead() {
-    var uri = input_box.value
-    console.log(uri);
-
-    fetch("/read-uri", {
-    method: 'get',
-    headers: {
-        "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-    }})
-    .then(function (data) {
-        console.log('Request succeeded with JSON response', data);
-
-        checkNFCProgress(update_read_box);
-        var callCount = 1;
-        var repeater = setInterval(function () {
-            if (callCount < 10) {
+function startRead() {    
+    fetch("/read-uri")
+    .then(res => {
+    try {
+        if (res.ok) {
             checkNFCProgress(update_read_box);
-            callCount += 1;
-            } else {
-            clearInterval(repeater);
-            }
-        }, 1000);
+            var callCount = 1;
+            var repeater = setInterval(function () {
+                if (callCount < 10) {
+                checkNFCProgress(update_read_box);
+                callCount += 1;
+                } else {
+                clearInterval(repeater);
+                }
+            }, 1000);
+            return false;
+        } else {
+        throw new Error(res)
+        }
+    }
+    catch (err) {
+        console.log(err.message)
+        return false;
+    }
     })
-    .catch(function (error) {
-        console.log('Request failed', error);
-    });
-
 }
 
 /*
   THE GET STATE FUNCTIONS
 */
 function updateCurrentState() {
-    fetch("/get-current-status", {
-    method: 'get',
-    headers: {
-        "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-    }})
-    .then(function (data) {
-        console.log('Request succeeded with JSON response', data);
-        cur_track_title.innerHTML = data["state"]["cur_playing_title"];
-        cur_track_artist.innerHTML = data["state"]["cur_track_artist"];
-        next_track_title.innerHTML = data["state"]["next_track_title"];
-        next_track_artist.innerHTML = data["state"]["next_track_artist"];
+    fetch("/get-current-status")
+    .then(res => {
+    try {
+        if (res.ok) {
+        return res.json()
+        } else {
+        throw new Error(res)
+        }
+    }
+    catch (err) {
+        console.log(err.message)
+        return {"status": "Failed"}
+    }
     })
-    .catch(function (error) {
-        console.log('Request failed', error);
-    });
+    .then (resJson => {
+        cur_track_title.innerHTML = resJson["state"]["cur_track_title"];
+        cur_track_artist.innerHTML = resJson["state"]["cur_track_artist"];
+        next_track_title.innerHTML = resJson["state"]["next_track_title"];
+        next_track_artist.innerHTML = resJson["state"]["next_track_artist"];
+        if (cur_track_title.innerHTML == ""){
+            cur_track_title.innerHTML = "Nothing Playing"
+        }   
+    return resJson.data
+    })
+    .catch(err => console.log(err))
 }
 
 /*

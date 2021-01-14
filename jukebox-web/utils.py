@@ -37,12 +37,14 @@ def restart_raspotify_service():
 
 
 def stop_read_service():
+    print("Stopping read service")
     output = subprocess.check_output("pm2 stop read-service", shell=True)
     output = output.decode("utf-8")
     return True if "stopped" in output else False
 
 
 def start_read_service():
+    print("Starting read service")
     output = subprocess.check_output("pm2 start read-service", shell=True)
     output = output.decode("utf-8")
     return True if "started" in output else False
