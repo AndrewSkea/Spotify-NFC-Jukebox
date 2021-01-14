@@ -29,11 +29,14 @@ try:
         past_cid = cid
         print("ID: %s\nText: %s" % (cid,text))
         print("Perform action")
-        if text != "stop":
-            req = requests.get(play_url + text)
-        else:
+        if text == "stop":
             req = requests.get(stop_url)
-        print("Response: {}".format(req.content))
+            print("Response: {}".format(req.content))
+        elif "spotify" in text:
+            req = requests.get(play_url + text)
+            print("Response: {}".format(req.content))
+        else:
+            print("Not valid text: {}".format(text))
         while cid and cid == past_cid:
             sleep(3)
             print("Checking")
@@ -46,3 +49,5 @@ try:
 except KeyboardInterrupt:
     GPIO.cleanup()
     raise
+except Exception as e:
+    print("FAILURE: {}".format(e))
