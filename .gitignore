@@ -6,6 +6,9 @@ __pycache__/
 
 *.service
 read-service/ReadProd.py
+jukeboxenv/
+node-sonos-http-api/
+settings.json
 
 # C extensions
 *.so

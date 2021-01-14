@@ -2,6 +2,7 @@ import multiprocessing.pool
 import functools
 import subprocess
 import json
+import os
 
 def get_room_name():
     with open("/home/pi/sonos-spotify-jukebox/jukebox-web/settings.json", "r") as jsonFile:
@@ -25,9 +26,7 @@ def timeout(max_timeout):
 
 
 def restart_sonos_api():
-    output = subprocess.check_output("pm2 restart sonos-api-service", shell=True)
-    output = output.decode("utf-8")
-    return True if "restarted" in output else False
+    os.system("pm2 restart sonos-api-service")
 
 
 def restart_raspotify_service():
@@ -37,15 +36,13 @@ def restart_raspotify_service():
 
 
 def stop_read_service():
-    output = subprocess.check_output("pm2 stop read-service", shell=True)
-    output = output.decode("utf-8")
-    return True if "stopped" in output else False
+    print("Stopping read service")
+    os.system("pm2 stop read-service")
 
 
 def start_read_service():
-    output = subprocess.check_output("pm2 start read-service", shell=True)
-    output = output.decode("utf-8")
-    return True if "started" in output else False
+    print("Starting read service")
+    os.system("pm2 start read-service")
 
 
 def restart_all_services():

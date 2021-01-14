@@ -1,59 +1,53 @@
-#!/usr/bin/env python
-import subprocess
-import RPi.GPIO as GPIO
-import os
-import requests
+from time import sleep
 import json
+import sys
 from mfrc522 import SimpleMFRC522
+import RPi.GPIO as GPIO
+import requests
 
 GPIO.setwarnings(False)
 reader = SimpleMFRC522()
 
+past_cid = None
+
 with open("../jukebox-web/settings.json", "r") as jsonFile:
     data = json.load(jsonFile)
-    
-room_name = data["sonos_room"]
+
+room_name = data["sonos_room"] or "Living Room"
 base_url = "http://localhost:5005/{}".format(room_name)
 play_url = base_url + "/spotify/now/"
+stop_url = base_url + "/stop"
 
 
-def ensure_shuffle():
-    requests.get(base_url + "/repeat/on")
-    requests.get(base_url = "/shuffle/on")
-    req = requests.get(base_url = "/state")
-    if req.json():
-        return req["playMode"]["shuffle"] == "true"
-    else:
-        return False
-
-while True:
-    try:
-        # Check if raspotify is running
-        # output = subprocess.check_output("spotify-cli devices", shell=True)
-        # output = output.decode("utf-8")
-        # running = True if "raspotify" in output else False
-        # if not running:
-        #     # Start raspotify
-        #     service_out = subprocess.check_output("sudo service raspotify restart", shell=True)
-        #     print(service_out.decode("utf-8"))
-            
-        # Read from card
-        ensure_shuffle()
-        print("Place RFID Card on reader")
-        card_id, text = reader.read()
-        if text:
-            ensure_shuffle()
-            req = requests.get(base_url + text)
-            if req.status_code  < 400:
-                break
-            else:
-                status = "Can't find URI"
-
-        # shuffle_cmd = "spotify-cli shuffle on"
-        # play_cmd = "spotify-cli play --device \"raspotify\" --uri_string \"{}\"".format(text)
-        # print(play_cmd)
-        # _cmd = os.system(play_cmd)
-        # print("Play command ran with exit code %d" % _cmd)
-        # _scmd = os.system(shuffle_cmd)
-    finally:
-        GPIO.cleanup()
+try:
+    while True:
+        print("Hold a tag near the reader")
+        cid, text = reader.read_no_block()
+        while not cid:
+            cid, text = reader.read_no_block()
+            sleep(0.5)
+        past_cid = cid
+        print("ID: %s\nText: %s" % (cid,text))
+        print("Perform action")
+        if text == "stop":
+            req = requests.get(stop_url)
+            print("Response: {}".format(req.content))
+        elif "spotify" in text:
+            req = requests.get(play_url + text)
+            print("Response: {}".format(req.content))
+        else:
+            print("Not valid text: {}".format(text))
+        while cid and cid == past_cid:
+            sleep(3)
+            print("Checking")
+            for i in range(10):
+                cid, text = reader.read_no_block()
+                if cid:
+                    break
+        print("Card removed, sleeping 5 seconds before next read")
+        sleep(5)
+except KeyboardInterrupt:
+    GPIO.cleanup()
+    raise
+except Exception as e:
+    print("FAILURE: {}".format(e))
