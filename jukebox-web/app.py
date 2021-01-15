@@ -19,7 +19,12 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'UERAIJFajjdlierjlefwkfjelmm982374EFA'
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 
+global text_to_write
+
 make_all_access(RASPOTIFY_FILE)
+make_all_access(SONOS_SETTINGS_FILE)
+make_all_access(SETTINGS_FILE)
+log_constants()
 
 global pool_result
 
@@ -30,51 +35,36 @@ def add_headers(response):
     response.headers['Access-Control-Allow-Methods'] =  "POST, GET, PUT, OPTIONS"
     return response
 
-
-@timeout(30)
-def worker(spotify_uri="", is_read=False):
-    print('Starting {}'.format(spotify_uri))
-    stop_read_service()
-    if is_read:
-        print("worker: is read")
-        nfc_id, text = reader.read()
+@app.route("/check-write-progress", methods=['GET'])
+def check_write_progress():
+    global text_to_write
+    print("Trying to write: " + text_to_write)
+    cid, text_in, status = None, None, "Place RFID Card on Reader"
+    for _ in range(20):
+        cid, text_in = reader.write_no_block(text_to_write)
+        if cid and text_in:
+            break
+            
+    if cid and text_in:
+        print("Successfully written {} to {}".format(cid, text_in))
         start_read_service()
-        print("Done: ID:{} Text:{}".format(nfc_id, text))
-        return [nfc_id, text]
-    else:
-        print("worker: is not read")
-        reader.write(str(spotify_uri))
-        start_read_service()
-        print("Done: {}".format(spotify_uri))
-        return [spotify_uri]
-        
-
-@app.route("/check-nfc-progress", methods=['GET'])
-def check_progress():
-    status_resp = "Place RFID Card on Reader"
-    if pool_result.ready():
-        print("Pool is ready")
-        try:
-            ret = pool_result.get(timeout=1)
-            print(ret)
-            ret = ret[0] if ret else None
-            if ret is not None:
-                print("check_progress: " + str(ret))
-                if len(ret) == 1:
-                    status_resp = "Written {} to RFID card".format(ret)
-                if len(ret) == 2:
-                    status_resp = "Read URI:{} from RFID card with ID: {}".format(ret[1], ret[0])
-        except context.TimeoutError:
-            status_resp = "Write operation has timed out!"
-    return jsonify({"status": status_resp})
+        status = "success"
+    return {"status": status, "id": cid, "uri": text_in}
 
 
 @app.route('/write-uri/<spotify_uri>', methods=['POST'])
 def write_uri(spotify_uri):
-    pool = Pool()
-    global pool_result
-    pool_result = pool.map_async(worker, [spotify_uri])
-    return Response("{'status':'started'}", status=202, mimetype='application/json')
+    print(spotify_uri)
+    if spotify_uri.strip() == "stop":
+        spotify_uri = "pause"
+    spotify_uri += max(8-len(spotify_uri), 0) * " "
+    global text_to_write
+    text_to_write = spotify_uri
+    print("Reading endpoint called")
+    stop_read_service()
+    ret = check_write_progress()
+    return ret
+    
     
 
 @app.route("/check-read-progress", methods=['GET'])

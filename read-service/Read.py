@@ -24,9 +24,11 @@ while data is None:
 
 room_name = data["sonos_room"] or "Living Room"
 base_url = "http://localhost:5005/{}".format(room_name)
+base_url = base_url.replace(" ", "%20")
 play_url = base_url + "/spotify/now/"
-stop_url = base_url + "/stop"
-
+stop_url = base_url + "/pause"
+shuffle_url = base_url + "/shuffle/true"
+next_url = base_url + "/next"
 
 try:
     while True:
@@ -36,13 +38,22 @@ try:
             cid, text = reader.read_no_block()
             sleep(0.5)
         past_cid = cid
+        text = text.replace(" ", "")
         print("ID: %s\nText: %s" % (cid,text))
         print("Perform action")
-        if text == "stop":
+        if text == "pause":
+            print(stop_url)
             req = requests.get(stop_url)
             print("Response: {}".format(req.content))
         elif "spotify" in text:
-            req = requests.get(play_url + text)
+            u = "{}{}".format(play_url, text)
+            print(u)
+            print("Turning on shuffle")
+            req = requests.get(shuffle_url)
+            sleep(1)
+            req = requests.get(u)
+            sleep(0.5)
+            req = requests.get(next_url)
             print("Response: {}".format(req.content))
         else:
             print("Not valid text: {}".format(text))
