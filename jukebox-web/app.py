@@ -6,7 +6,7 @@ import os
 import requests
 from flask import Flask, render_template, Response, jsonify, request, flash, redirect, url_for
 
-from utils import get_sonos_room, timeout, start_read_service, stop_read_service, update_files_from_settings
+from utils import make_all_access, get_sonos_room, timeout, start_read_service, stop_read_service, update_sonos_room_from_settings, update_spotify_app_auth_from_settings, update_spotify_auth_from_settings
 from constants import *
 
 try:
@@ -18,6 +18,8 @@ except ModuleNotFoundError as e:
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'UERAIJFajjdlierjlefwkfjelmm982374EFA'
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+
+make_all_access(RASPOTIFY_FILE)
 
 global pool_result
 
@@ -141,15 +143,15 @@ def update_spotify_auth():
     password = request.form['spotify-password']
     if username != "" and password != "":
 
-        with open(SETTINGS_FILE, "r") as jsonFile:
+        with open(SETTINGS_FILE, "r+") as jsonFile:
             data = json.load(jsonFile)
 
         data["spotify_username"] = username
         data["spotify_password"] = password
 
-        with open(SETTINGS_FILE, "w") as jsonFile:
+        with open(SETTINGS_FILE, "w+") as jsonFile:
             json.dump(data, jsonFile)
-        update_files_from_settings()
+        update_spotify_auth_from_settings()
         flash('Updated authentication for Spotify')
         return redirect(url_for('index'))
     else:
@@ -162,15 +164,15 @@ def update_spotify_app_auth():
     client_secret = request.form['spotify-client-secret']
     if client_id != "" and client_secret != "":
 
-        with open(SETTINGS_FILE, "r") as jsonFile:
+        with open(SETTINGS_FILE, "r+") as jsonFile:
             data = json.load(jsonFile)
 
         data["spotify_client_id"] = client_id
         data["spotify_client_secret"] = client_secret
 
-        with open(SETTINGS_FILE, "w") as jsonFile:
+        with open(SETTINGS_FILE, "w+") as jsonFile:
             json.dump(data, jsonFile)
-        update_files_from_settings()
+        update_spotify_app_auth_from_settings()
         flash('Updated authentication for Spotify App')
         return redirect(url_for('index'))
     else:
@@ -181,14 +183,14 @@ def update_spotify_app_auth():
 def update_sonos_room():
     sonos_room = request.form['sonos-room']
     if sonos_room != "":
-        with open(SETTINGS_FILE, "r") as jsonFile:
+        with open(SETTINGS_FILE, "r+") as jsonFile:
             data = json.load(jsonFile)
 
         data["sonos_room"] = sonos_room
 
-        with open(SETTINGS_FILE, "w") as jsonFile:
+        with open(SETTINGS_FILE, "w+") as jsonFile:
             json.dump(data, jsonFile)
-        update_files_from_settings()
+        update_sonos_room_from_settings()
         flash('Updated Sonos Room preference')
         return redirect(url_for('index'))
     else:

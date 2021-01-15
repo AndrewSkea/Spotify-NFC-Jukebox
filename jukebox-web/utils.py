@@ -9,7 +9,13 @@ from constants import *
 def get_sonos_room():
     with open(SETTINGS_FILE, "r") as jsonFile:
         data = json.load(jsonFile)
-    return data["sonos_room"]
+    return data.get("sonos_room", "")
+    
+
+def make_all_access(file_path):
+    cmd = "sudo chmod 777 {}".format(file_path)
+    output = subprocess.check_output(cmd, shell=True)
+    print(output)
 
 
 def timeout(max_timeout):
@@ -66,42 +72,39 @@ def insert_line(file_path, match_string, insert_string):
                     break
         fd.seek(0)
         fd.writelines(contents)
-
-
-def update_files_from_settings():
+        
+        
+def update_spotify_auth_from_settings():
     with open(SETTINGS_FILE, "r") as jsonFile:
         data = json.load(jsonFile)
     username = data["spotify_username"]
     password = data["spotify_password"]
+    
+    # Update the username and password for raspotify
+    with open(RASPOTIFY_FILE, "r") as f:
+        lines = f.read().splitlines()
+    final_lines = []
+    
+    # Delete all lines starting with OPTIONS=
+    for i, line in enumerate(lines):
+        if i == 0 or not line.startswith('OPTIONS'):
+            final_lines.append(line)
+    
+    final_lines.append('OPTIONS=" --username {} --password {}"'.format(username, password))
+    open(RASPOTIFY_FILE,'w').write('\n'.join(final_lines))
+    restart_raspotify_service()
+    
+    
+def update_spotify_app_auth_from_settings():
+    with open(SETTINGS_FILE, "r") as jsonFile:
+        data = json.load(jsonFile)
     client_id = data["spotify_client_id"]
     client_secret = data["spotify_client_secret"]
-    sonos_room = data["sonos_room"]
-
-    # Update the username and password for raspotify
-    lines = open('/etc/default/raspotify').read().splitlines()
-    line_to_rep = None
-    for i, line in enumerate(lines):
-        print(line)
-        if line.startswith("OPTIONS"):
-            print(line)
-            line_to_rep = i
-    ln = 'OPTIONS=" --username {} --password {}"'.format(username, password)
-    if line_to_rep is None:
-        lines.append(ln)
-    else:
-        lines[line_to_rep-1] = ln
-    open('/etc/default/raspotify','w').write('\n'.join(lines))
-    restart_raspotify_service()
-
+    
     # Update spotify-cli auth
     cmd = "spotify-cli config --set-app-client-id {} --set-app-client-secret {} --set-redirect-port 5555".format(client_id, client_secret)
     output = subprocess.check_output(cmd, shell=True)
     print(output)
-
-    # Update presets.json && settings.json in node-sonos-http-app
-    # Update presets for sonos room
-    js = { "players": [{"roomName": sonos_room, "volume": 15}],"playMode": { "shuffle": "true", "repeat": "all", "crossfade": "false" }, "pauseOthers": "false" }
-    open("/home/pi/sonos-spotify-jukebox/node-sonos-http-api/presets/example.json", "w").write(str(js))
 
     # Update client id and secret in settings.js
     match_string = 'announceVolume: 40,'
@@ -110,3 +113,13 @@ def update_files_from_settings():
     print(insert_string)
     insert_line("/home/pi/sonos-spotify-jukebox/node-sonos-http-api/settings.js", match_string, insert_string)
     restart_sonos_api()
+
+
+def update_sonos_room_from_settings():
+    with open(SETTINGS_FILE, "r") as jsonFile:
+        data = json.load(jsonFile)
+    sonos_room = data["sonos_room"]
+    # Update presets for sonos room
+    js = { "players": [{"roomName": sonos_room, "volume": 15}],"playMode": { "shuffle": "true", "repeat": "all", "crossfade": "false" }, "pauseOthers": "false" }
+    open("/home/pi/sonos-spotify-jukebox/node-sonos-http-api/presets/example.json", "w").write(str(js))
+

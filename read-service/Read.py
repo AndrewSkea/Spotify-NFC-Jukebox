@@ -19,7 +19,7 @@ while data is None:
         with open(SETTINGS_FILE, "r") as jsonFile:
             data = json.load(jsonFile)
     except Exception:
-        print("No setttings file")
+        print("No settings file")
     sleep(5)
 
 room_name = data["sonos_room"] or "Living Room"
