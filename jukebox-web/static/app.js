@@ -19,12 +19,16 @@ $(document).ready(function() {
     }, 5000);
 });
 
-function alert(message, is_error=False){
- if (is_error){
-    $.notify(message, "error");
- } else {
-    $.notify(message, "success");
- }
+function alert(message, is_error=False, _class=null){
+    if (_class != null){
+        $(_class).notify(message);
+    } else {
+        if (is_error){
+            $.notify(message, "error");
+        } else {
+            $.notify(message, "success");
+        }
+    }
 }
 
 /*
@@ -189,16 +193,19 @@ function updateCurrentState() {
     }
     })
     .then (resJson => {
-        cur_track_title.innerHTML = resJson["state"]["cur_track_title"];
-        cur_track_artist.innerHTML = resJson["state"]["cur_track_artist"];
-        next_track_title.innerHTML = resJson["state"]["next_track_title"];
-        next_track_artist.innerHTML = resJson["state"]["next_track_artist"];
-        if (cur_track_title.innerHTML == ""){
-            cur_track_title.innerHTML = "Nothing Playing"
-        }   
+        if (resJson["state"]){
+            cur_track_title.innerHTML = resJson["state"]["cur_track_title"];
+            cur_track_artist.innerHTML = resJson["state"]["cur_track_artist"];
+            next_track_title.innerHTML = resJson["state"]["next_track_title"];
+            next_track_artist.innerHTML = resJson["state"]["next_track_artist"];
+            if (cur_track_title.innerHTML == ""){
+                cur_track_title.innerHTML = "Nothing Playing"
+            } 
+        } else {
+            alert("No connection to Sonos API", true, ".cur_playing")
+        }
     return resJson.data
     })
-    .catch(err => console.log(err))
 }
 
 /*

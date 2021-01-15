@@ -3,9 +3,11 @@ import functools
 import subprocess
 import json
 import os
+from constants import *
 
-def get_room_name():
-    with open("/home/pi/sonos-spotify-jukebox/jukebox-web/settings.json", "r") as jsonFile:
+
+def get_sonos_room():
+    with open(SETTINGS_FILE, "r") as jsonFile:
         data = json.load(jsonFile)
     return data["sonos_room"]
 
@@ -67,7 +69,7 @@ def insert_line(file_path, match_string, insert_string):
 
 
 def update_files_from_settings():
-    with open("settings.json", "r") as jsonFile:
+    with open(SETTINGS_FILE, "r") as jsonFile:
         data = json.load(jsonFile)
     username = data["spotify_username"]
     password = data["spotify_password"]

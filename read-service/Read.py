@@ -1,6 +1,7 @@
 from time import sleep
 import json
 import sys
+import os
 from mfrc522 import SimpleMFRC522
 import RPi.GPIO as GPIO
 import requests
@@ -9,8 +10,10 @@ GPIO.setwarnings(False)
 reader = SimpleMFRC522()
 
 past_cid = None
+CURRENT_DIR = os.path.dirname(__file__)
+SETTINGS_FILE = os.path.abspath(os.path.join(CURRENT_DIR, '..', 'jukebox-web', 'settings.json'))
 
-with open("/home/pi/sonos-spotify-jukebox/jukebox-web/settings.json", "r") as jsonFile:
+with open(SETTINGS_FILE, "r") as jsonFile:
     data = json.load(jsonFile)
 
 room_name = data["sonos_room"] or "Living Room"

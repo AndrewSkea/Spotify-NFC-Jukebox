@@ -8,6 +8,15 @@
 <br>
 <br>
 <div class="row top-row">
+	{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			<ul class=flashes>
+			{% for message in messages %}
+				<li>{{ message }}</li>
+			{% endfor %}
+			</ul>
+		{% endif %}
+	{% endwith %}
 	<aside class="col-sm-12">
 		<div class="card">
 			<article class="card-body">
@@ -21,10 +30,10 @@
 <div class="row top-row">
 	<aside class="col-sm-12">
 		<div class="card">
-			<article class="card-body">
+			<article class="card-body cur_playing">
 				<h4 class="card-title mb-4 mt-1">Currently Playing</h4>
 				<hr>
-				<h2 id="cur_track_title"></h2>
+				<h2 id="cur_track_title" class="cur_track_title"></h2>
 				<h2 id="cur_track_artist"></h2>
 				<h2 id="next_track_title"></h2>
 				<h2 id="next_track_artist"></h2>
@@ -109,7 +118,7 @@
 		<div class="form-group">
 			<button type="submit" class="btn btn-primary btn-block"> Update  </button>
 		</div>
-	  </form>
+	</form>
 </article>
 </div> <!-- card.// -->
 

@@ -1,0 +1,97 @@
+[Encoding]
+InputEncoding=UTF8
+
+[WFClient]
+ProxyFavorIEConnectionSetting=Yes
+ProxyTimeout=30000
+ProxyType=Auto
+ProxyUseFQDN=Off
+RemoveICAFile=yes
+TransportReconnectEnabled=Off
+Version=2
+VirtualCOMPortEmulation=On
+
+[ApplicationServers]
+Office Desktop -UK $P907=
+
+[Office Desktop -UK $P907]
+Address=;40;STA762323220;C052A0961A7071284A5D4B394F9A1E
+AutologonAllowed=ON
+BrowserProtocol=HTTPonTCP
+CGPSecurityTicket=On
+ClearPassword=993352C8BFEC96
+ClientAudio=On
+ConnectionBar=1
+DesiredColor=8
+DesiredHRES=4294967295
+DesiredVRES=4294967295
+Domain=\E608A145B5A6C18A
+DoNotUseDefaultCSL=On
+FontSmoothingType=0
+HDXoverUDP=Preferred
+HTTPBrowserAddress=!
+InitialProgram=#Office Desktop -UK $P907
+Launcher=WI
+LaunchReference=8865F836E5F7E162904B5BFD60CBF3
+LocHttpBrowserAddress=!
+LogonTicket=993352C8BFEC96E608A145B5A6C18A
+LogonTicketType=CTXS1
+LongCommandLine=
+LPWD=484
+NRWD=109
+ProxyTimeout=30000
+ProxyType=Auto
+SecureChannelProtocol=Detect
+SessionsharingKey=-SH4CxCcgkqx5y1RZqrNTWiK7QkM
+SFRAllowed=Off
+SSLCiphers=all
+SSLEnable=On
+SSLProxyHost=athome.mlp.com:443
+startSCD=1610702329571
+SubscriptionUrl=https://workspace.mlp.com/Citrix/DesksandApps/resources/v2/subscriptions/VUtYQVhELk9mZmljZSBEZXNrdG9wIC1VSyAkUDkwNw--
+Title=D50BTE00205
+TransportDriver=TCP/IP
+TRWD=0
+TWIMode=Off
+WinStationDriver=ICA 3.0
+
+[AWS Console Prod]
+DesiredHRES=1024
+DesiredVRES=768
+TWIMode=Off
+
+[AWS Console QA]
+DesiredHRES=1024
+DesiredVRES=768
+TWIMode=Off
+
+[Compress]
+DriverNameWin16=pdcompw.dll
+DriverNameWin32=pdcompn.dll
+
+[EncRC5-0]
+DriverNameWin16=pdc0w.dll
+DriverNameWin32=pdc0n.dll
+
+[EncRC5-128]
+DriverNameWin16=pdc128w.dll
+DriverNameWin32=pdc128n.dll
+
+[EncRC5-40]
+DriverNameWin16=pdc40w.dll
+DriverNameWin32=pdc40n.dll
+
+[EncRC5-56]
+DriverNameWin16=pdc56w.dll
+DriverNameWin32=pdc56n.dll
+
+[Idea Portal Prod]
+DesiredHRES=1024
+DesiredVRES=768
+TWIMode=Off
+
+[Ideal Portal QA]
+DesiredHRES=1024
+DesiredVRES=768
+TWIMode=Off
+

@@ -2,16 +2,18 @@ from multiprocessing import Pool, context
 from multiprocessing.context import TimeoutError
 import time
 import json
+import os
 import requests
-from flask import Flask, render_template, Response, jsonify, request
+from flask import Flask, render_template, Response, jsonify, request, flash, redirect, url_for
 
-from utils import get_room_name, timeout, start_read_service, stop_read_service, update_files_from_settings
+from utils import get_sonos_room, timeout, start_read_service, stop_read_service, update_files_from_settings
+from constants import *
 
-import RPi.GPIO as GPIO
-from mfrc522 import SimpleMFRC522
-
-GPIO.setwarnings(False)
-reader = SimpleMFRC522()
+try:
+    from mfrc522 import SimpleMFRC522
+    reader = SimpleMFRC522()
+except ModuleNotFoundError as e:
+    print(e)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'UERAIJFajjdlierjlefwkfjelmm982374EFA'
@@ -97,8 +99,8 @@ def read_uri():
 
 @app.route('/get-zone-list', methods=['GET'])
 def read_zone_list():
-    req = requests.get("http://localhost:5005/zones")
     try:
+        req = requests.get("http://localhost:5005/zones")
         members = req.json()["members"]
         zone_list = []
         for mem in members:
@@ -111,8 +113,11 @@ def read_zone_list():
 @app.route('/get-current-status', methods=['GET'])
 def read_current_state():
     ret = {"status": "failed"}
-    req = requests.get("http://localhost:5005/{}/state".format(get_room_name()))
-    if req.json():
+    try: 
+        req = requests.get("http://localhost:5005/{}/state".format(get_sonos_room()))
+    except requests.exceptions.RequestException as e:
+        req = None
+    if req and req.json():
         j = req.json()
         to_ret = {
             "cur_track_title": j["currentTrack"].get("title", ""),
@@ -121,12 +126,12 @@ def read_current_state():
             "next_track_artist": j["nextTrack"].get("artist", "")
         }
         ret = {"status": "success", "state": to_ret}
-    return ret
+    return jsonify(ret)
 
 
 @app.route('/next-song', methods=['POST'])
 def next_song():
-    req = requests.get("http://localhost:5005/{}/next".format(get_room_name()))
+    req = requests.get("http://localhost:5005/{}/next".format(get_sonos_room()))
     if req.json():
         return req.json()
 
@@ -136,15 +141,17 @@ def update_spotify_auth():
     password = request.form['spotify-password']
     if username != "" and password != "":
 
-        with open("settings.json", "r") as jsonFile:
+        with open(SETTINGS_FILE, "r") as jsonFile:
             data = json.load(jsonFile)
 
         data["spotify_username"] = username
         data["spotify_password"] = password
 
-        with open("settings.json", "w") as jsonFile:
+        with open(SETTINGS_FILE, "w") as jsonFile:
             json.dump(data, jsonFile)
         update_files_from_settings()
+        flash('Updated authentication for Spotify')
+        return redirect(url_for('index'))
     else:
         return {"status": "invaliad input for username or password"}
 
@@ -155,37 +162,41 @@ def update_spotify_app_auth():
     client_secret = request.form['spotify-client-secret']
     if client_id != "" and client_secret != "":
 
-        with open("settings.json", "r") as jsonFile:
+        with open(SETTINGS_FILE, "r") as jsonFile:
             data = json.load(jsonFile)
 
         data["spotify_client_id"] = client_id
         data["spotify_client_secret"] = client_secret
 
-        with open("settings.json", "w") as jsonFile:
+        with open(SETTINGS_FILE, "w") as jsonFile:
             json.dump(data, jsonFile)
         update_files_from_settings()
+        flash('Updated authentication for Spotify App')
+        return redirect(url_for('index'))
     else:
         return {"status": "invaliad input for client_id or client_secret"}
 
 
 @app.route('/update-sonos', methods=['POST'])
-def update_sonos_room(sonos_room):
+def update_sonos_room():
     sonos_room = request.form['sonos-room']
     if sonos_room != "":
-        with open("settings.json", "r") as jsonFile:
+        with open(SETTINGS_FILE, "r") as jsonFile:
             data = json.load(jsonFile)
 
         data["sonos_room"] = sonos_room
 
-        with open("settings.json", "w") as jsonFile:
+        with open(SETTINGS_FILE, "w") as jsonFile:
             json.dump(data, jsonFile)
         update_files_from_settings()
+        flash('Updated Sonos Room preference')
+        return redirect(url_for('index'))
     else:
         return {"status": "invaliad input for sonos_room"}
 
 
 @app.route('/', methods=['GET'])
-def sessions():
+def index():
     return render_template('index.html')
 
 if __name__ == '__main__':

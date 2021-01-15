@@ -8,7 +8,7 @@ __pycache__/
 read-service/ReadProd.py
 jukeboxenv/
 node-sonos-http-api/
-settings.json
+jukebox-web/settings.json
 
 # C extensions
 *.so
