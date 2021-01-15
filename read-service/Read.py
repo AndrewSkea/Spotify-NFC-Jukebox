@@ -12,9 +12,15 @@ reader = SimpleMFRC522()
 past_cid = None
 CURRENT_DIR = os.path.dirname(__file__)
 SETTINGS_FILE = os.path.abspath(os.path.join(CURRENT_DIR, '..', 'jukebox-web', 'settings.json'))
+data = None
 
-with open(SETTINGS_FILE, "r") as jsonFile:
-    data = json.load(jsonFile)
+while data is None:
+    try:
+        with open(SETTINGS_FILE, "r") as jsonFile:
+            data = json.load(jsonFile)
+    except Exception:
+        print("No setttings file")
+    sleep(5)
 
 room_name = data["sonos_room"] or "Living Room"
 base_url = "http://localhost:5005/{}".format(room_name)
