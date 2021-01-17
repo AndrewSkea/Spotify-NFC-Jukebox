@@ -25,7 +25,6 @@ function get_jukebox() {
   sudo cp -f spotify-client/bin/spotify-cli /usr/local/bin
   sudo chmod +x /usr/local/bin/spotify-cli
   [ -x "$(command -v spotify-cli)" ] && echo "spotify-cli installed"
-  output="$(spotify-cli devices)"
   echo "Authentication for the spotify-cli service will be done in http://localhost:8000 after reboot"
   mkdir -p $HOME_DIR/logs
 }
@@ -49,7 +48,7 @@ function run_sonos_http_api() {
   sudo systemctl enable sonos.service
   sudo systemctl start sonos.service
   sudo systemctl status sonos.service
-  journalctl -u sonos.service
+  journalctl -u jukebox.service --no-pager
 }
 
 function start_read_service() {
@@ -60,7 +59,7 @@ function start_read_service() {
   sudo systemctl enable read.service
   sudo systemctl start read.service
   sudo systemctl status read.service
-  journalctl -u read.service
+  journalctl -u jukebox.service --no-pager
 }
 
 function start_jukebox_admin(){
@@ -71,7 +70,7 @@ function start_jukebox_admin(){
   sudo systemctl enable jukebox.service
   sudo systemctl start jukebox.service
   sudo systemctl status jukebox.service
-  journalctl -u jukebox.service
+  journalctl -u jukebox.service --no-pager
 }
 
 get_jukebox
