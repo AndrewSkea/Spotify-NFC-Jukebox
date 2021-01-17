@@ -92,12 +92,10 @@ def read_uri():
 @app.route('/get-zone-list', methods=['GET'])
 def read_zone_list():
     try:
-        req = requests.get("http://localhost:5005/zones")
-        members = req.json()["members"]
-        zone_list = []
-        for mem in members:
-            zone_list.append(mem["roomName"])
-        return {"status": "success", "room_names": zone_list}
+        req = requests.get(DEVICES_URL)
+        members = list(req.content)
+        print(members)
+        return {"status": "success", "room_names": members}
     except:
         return {"status": "failed"}
 

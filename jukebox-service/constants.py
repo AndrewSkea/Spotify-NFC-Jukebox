@@ -10,6 +10,7 @@ SONOS_SETTINGS_FILE = os.path.abspath(os.path.join(APP_HOME, 'sonos-service', 's
 SONOS_BASE_URL = "http://localhost:8081"
 STATE_URL = SONOS_BASE_URL + "/state"
 NEXT_URL = SONOS_BASE_URL + "/next"
+DEVICES_URL = SONOS_BASE_URL + "/devices"
 
 if not os.path.exists(SONOS_SETTINGS_FILE):
     with open(SONOS_SETTINGS_FILE, "w+") as f:

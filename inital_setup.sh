@@ -43,33 +43,32 @@ function activate_env(){
   source $HOME_DIR/jukeboxenv/bin/activate
 }
 
-
-function get_sonos_http_api() {
-  cd $HOME_DIR
-  git clone https://github.com/jishi/node-sonos-http-api.git
-}
-
 function run_sonos_http_api() {
-  cd $HOME_DIR/node-sonos-http-api
-  npm install --production
-  cd ..
-  sudo cp -f sonosapi.service /lib/systemd/system/sonosapi.service
+  cd $HOME_DIR/sonos-service
+  npm install
+  sudo cp -f sonos.service /lib/systemd/system/sonos.service
   sudo systemctl daemon-reload
-  sudo systemctl enable sonosapi.service
-  sudo systemctl start sonosapi.service
-  sudo systemctl status sonosapi.service
-  journalctl -u sonosapi.service
+  sudo systemctl enable sonos.service
+  sudo systemctl start sonos.service
+  sudo systemctl status sonos.service
+  journalctl -u sonos.service
 }
 
 function start_read_service() {
   cd $HOME_DIR/read-service
   activate_env
-  pm2 start Read.py --name "read-service" --log $HOME_DIR/logs/read_service.log --interpreter $HOME_DIR/jukeboxenv/bin/python
+  sudo cp -f read.service /lib/systemd/system/read.service
+  sudo systemctl daemon-reload
+  sudo systemctl enable read.service
+  sudo systemctl start read.service
+  sudo systemctl status read.service
+  journalctl -u read.service
 }
 
 function start_jukebox_admin(){
   cd $HOME_DIR/jukebox-service
-  sudo cp -f jukebox.service /etc/systemd/system/
+  activate_env
+  sudo cp -f jukebox.service /etc/systemd/system/jukebox.service
   sudo systemctl daemon-reload
   sudo systemctl enable jukebox.service
   sudo systemctl start jukebox.service
@@ -84,11 +83,6 @@ get_sonos_http_api
 run_sonos_http_api
 start_read_service
 start_jukebox_admin
-
-OUTPUT=$(pm2 startup systemd)
-OUTPUT=$(printf '%s\n' "${OUTPUT#*command:}")
-$OUTPUT
-pm2 save
 
 echo "Rebooting in 10 seconds, visit http://raspberry.local:8000 to setup connections to Spotify and Sonos"
 sleep 10
