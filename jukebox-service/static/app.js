@@ -4,10 +4,9 @@ $(document).ready(function() {
     uri_input_box = document.getElementById('uri_input_box');
     update_write_box = document.getElementById('update_write_box');
     update_read_box = document.getElementById('update_read_box');
-    cur_track_title = document.getElementById('cur_track_title');
-    cur_track_artist = document.getElementById('cur_track_artist');
-    next_track_title = document.getElementById('next_track_title');
-    next_track_artist = document.getElementById('next_track_artist');
+    title_el = document.getElementById('title');
+    artist_el = document.getElementById('artist');
+    album_el = document.getElementById('album');
     updateCurrentState()
 
     $("#write-form").submit(function(e) {
@@ -195,10 +194,9 @@ function updateCurrentState() {
     })
     .then (resJson => {
         if (resJson["state"]){
-            cur_track_title.innerHTML = resJson["state"]["cur_track_title"];
-            cur_track_artist.innerHTML = resJson["state"]["cur_track_artist"];
-            next_track_title.innerHTML = resJson["state"]["next_track_title"];
-            next_track_artist.innerHTML = resJson["state"]["next_track_artist"];
+            title_el.innerHTML = resJson["state"]["title"];
+            artist_el.innerHTML = resJson["state"]["artist"];
+            album_el.innerHTML = resJson["state"]["album"];
             if (cur_track_title.innerHTML == ""){
                 cur_track_title.innerHTML = "Nothing Playing"
             } 
