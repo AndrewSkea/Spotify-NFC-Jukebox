@@ -68,7 +68,7 @@ function start_read_service() {
 }
 
 function start_jukebox_admin(){
-  cd $HOME_DIR/jukebox-web
+  cd $HOME_DIR/jukebox-service
   sudo cp -f jukebox.service /etc/systemd/system/
   sudo systemctl daemon-reload
   sudo systemctl enable jukebox.service

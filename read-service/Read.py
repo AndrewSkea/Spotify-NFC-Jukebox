@@ -11,7 +11,7 @@ reader = SimpleMFRC522()
 
 past_cid = None
 CURRENT_DIR = os.path.dirname(__file__)
-SETTINGS_FILE = os.path.abspath(os.path.join(CURRENT_DIR, '..', 'jukebox-web', 'settings.json'))
+SETTINGS_FILE = os.path.abspath(os.path.join(CURRENT_DIR, '..', 'jukebox-service', 'settings.json'))
 data = None
 
 while data is None:
