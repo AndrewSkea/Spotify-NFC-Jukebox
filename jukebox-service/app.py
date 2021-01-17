@@ -12,8 +12,8 @@ from constants import *
 try:
     from mfrc522 import SimpleMFRC522
     reader = SimpleMFRC522()
-except ModuleNotFoundError as e:
-    print(e)
+except ModuleNotFoundError or FileNotFoundError:
+    print("Module not found")
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'UERAIJFajjdlierjlefwkfjelmm982374EFA'
