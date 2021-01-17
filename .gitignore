@@ -9,6 +9,7 @@ read-service/ReadProd.py
 jukeboxenv/
 node-sonos-http-api/
 jukebox-web/settings.json
+sonos-service/node_modules/
 
 # C extensions
 *.so
