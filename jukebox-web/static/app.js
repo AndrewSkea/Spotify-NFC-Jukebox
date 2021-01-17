@@ -32,56 +32,33 @@ function alert(message, is_error=False, _class=null){
 }
 
 /*
-  THE CHECK NFC PROGRESS FUNCTION (READ / WRITE)
+  THE CHECK WRITE PROGRESS FUNCTION (READ / WRITE)
 */
-function checkNFCProgress(box_to_update){
+function checkWriteProgress() {
     console.log("Getting Write progress");
-    fetch("/check-nfc-progress")
+    fetch("/check-write-progress")
     .then(res => {
     try {
         if (res.ok) {
         return res.json()
         } else {
-        throw new Error(res)
+        console.log("ERROR: " + res)
+        return false;
         }
     }
     catch (err) {
-        console.log(err.message)
-        return {"status": "Failed"}
-    }
-    })
-    .then (resJson => {
-        box_to_update.innerHTML = resJson.status;
-    return resJson.data
-    })
-    .catch(err => console.log(err))
-}
-
-function checkReadProgress(_callback){
-    console.log("Getting Read progress");
-    fetch("/check-read-progress")
-    .then(res => {
-    try {
-        if (res.ok) {
-        return res.json()
-        } else {
-        throw new Error(res)
-        }
-    }
-    catch (err) {
-        console.log(err.message)
-        return {"status": "Failed"}
+        console.log(err.message);
+        return true;
     }
     })
     .then (resJson => {
         if (resJson.status == "success"){
-            update_read_box.innerHTML = resJson["uri"]
-            _callback()
+            update_write_box.innerHTML = "Written " + resJson["uri"] + " to card with ID " + resJson["id"];
+            return true;
         } else {
-            update_read_box.innerHTML = resJson.status;
-            _callback()
+            update_write_box.innerHTML = "Place RFID card on reader";
+            return false;
         }
-    _callback()
     })
     .catch(err => console.log(err))
 }
@@ -93,6 +70,7 @@ function checkReadProgress(_callback){
 function startWrite() {
     var uri = uri_input_box.value
     console.log(uri);
+    update_write_box.innerHTML = "Place RFID card on reader";
 
     fetch("/write-uri/" + uri, {
     method: 'post',
@@ -101,19 +79,19 @@ function startWrite() {
     }, body: ''
     })
     .then(function (data) {
-    console.log('Request succeeded with JSON response', data);
-
-    checkNFCProgress(update_write_box);
-    var callCount = 1;
-    var repeater = setInterval(function () {
-        if (callCount < 10) {
-        checkNFCProgress(update_write_box);
-        callCount += 1;
-        } else {
-        clearInterval(repeater);
-        }
-    }, 1000);
-    return false;
+        console.log('Request succeeded with JSON response', data);
+        checkWriteProgress();
+        var callCount = 1;
+        var ret = false;
+        var repeater = setInterval(function () {
+          if (callCount < 30 && ret === false) {
+            ret = checkWriteProgress();
+            callCount += 1;
+          } else {
+            clearInterval(repeater);
+            console.log("startWrite Done");
+          }
+        }, 1000);
     })
     .catch(function (error) {
     console.log('Request failed', error);
@@ -122,46 +100,69 @@ function startWrite() {
 
 }
 
+function clearWrite() {
+    update_write_box.innerHTML = "";
+    document.getElementById('uri_input_box').value = "";
+}
+
+function clearRead() {
+    update_read_box.innerHTML = "";
+}
 
 /*
-  THE READING FUNCTIONS
+  THE CHECK READ FUNCTION
 */
+function checkReadProgress(){
+    console.log("Getting Read progress");
+    fetch("/check-read-progress")
+    .then(res => {
+    try {
+        if (res.ok) {
+        return res.json()
+        } else {
+        console.log("ERROR: " + res)
+        return false;
+        }
+    }
+    catch (err) {
+        console.log(err.message);
+        return true;
+    }
+    })
+    .then (resJson => {
+        if (resJson.status == "success"){
+            update_read_box.innerHTML = "Content: " + resJson["uri"] + " on card with ID " + resJson["id"];
+            return true;
+        } else {
+            update_read_box.innerHTML = "Place RFID card on reader";
+            return false;
+        }
+    })
+    .catch(err => console.log(err))
+}
+
+
 function startRead() {    
+    console.log("Start Read progress");
+    update_read_box.innerHTML = "Place RFID card on reader";
     fetch("/read-uri")
     .then(res => {
     try {
         if (res.ok) {
             
-            function firstFunction(_callback){
-                // do some asynchronous work
-                // and when the asynchronous stuff is complete
-                _callback();    
-            }
-
-            function secondFunction(){
-                // call first function and pass in a callback function which
-                // first function runs when it has completed
-                firstFunction(function() {
-                    console.log('huzzah, I\'m done!');
-                });    
-            }
-            
-            for (let step = 0; step < 30; step++) {
-              checkReadProgress(update_read_box)
-            }
-            
-            checkReadProgress(update_read_box);
+            checkReadProgress();
             var callCount = 1;
             var ret = false;
             var repeater = setInterval(function () {
-                if (callCount < 30 && ret == false) {
-                ret = checkReadProgress(update_read_box);
-                console.log(ret)
+              if (callCount < 30 && ret === false) {
+                ret = checkReadProgress();
                 callCount += 1;
-                } else {
+              } else {
                 clearInterval(repeater);
-                }
+                console.log("startRead Done");
+              }
             }, 1000);
+            
             return false;
         } else {
         throw new Error(res)

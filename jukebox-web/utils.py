@@ -9,7 +9,12 @@ from constants import *
 def get_sonos_room():
     with open(SETTINGS_FILE, "r") as jsonFile:
         data = json.load(jsonFile)
-    return data["sonos_room"]
+    return data.get("sonos_room", "")
+    
+
+def make_all_access(file_path):
+    cmd = ["sudo", "chmod", "777", file_path]
+    subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
 
 def timeout(max_timeout):
@@ -28,23 +33,26 @@ def timeout(max_timeout):
 
 
 def restart_sonos_api():
-    os.system("pm2 restart sonos-api-service")
+    cmd = ["pm2", "restart", "sonos-api-service", "-a"]
+    subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
 
 def restart_raspotify_service():
-    output = subprocess.check_output("sudo service raspotify restart", shell=True)
-    output = output.decode("utf-8")
-    return True if "" in output else False
+    print("Restarting raspotify")
+    cmd = ["sudo", "service", "raspotify", "restart"]
+    subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
 
 def stop_read_service():
     print("Stopping read service")
-    os.system("pm2 stop read-service")
+    cmd = ["pm2", "stop", "read-service", "-a"]
+    subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
 
 def start_read_service():
     print("Starting read service")
-    os.system("pm2 start read-service")
+    cmd = ["pm2", "start", "read-service", "-a"]
+    subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
 
 def restart_all_services():
@@ -54,10 +62,10 @@ def restart_all_services():
     start_read_service()
 
 
-def insert_line(file_path, match_string, insert_string):
+def insert_line(file_path, match_string, insert_string, del_line=None):
     with open(file_path, 'r+') as fd:
         contents = fd.readlines()
-        if match_string in contents[-1]:  # Handle last line to prevent IndexError
+        if any([match_string in l for l in contents[-1]]):  # Handle last line to prevent IndexError
             contents.append(insert_string)
         else:
             for index, line in enumerate(contents):
@@ -66,47 +74,75 @@ def insert_line(file_path, match_string, insert_string):
                     break
         fd.seek(0)
         fd.writelines(contents)
-
-
-def update_files_from_settings():
+        
+        
+def del_line_from_list(lines, line_starts_with):
+    final_list = []
+    for i, line in enumerate(lines):
+        if i == 0 or not line.startswith(line_starts_with):
+            final_list.append(line)
+    return final_list
+        
+        
+def update_spotify_auth_from_settings():
     with open(SETTINGS_FILE, "r") as jsonFile:
         data = json.load(jsonFile)
     username = data["spotify_username"]
     password = data["spotify_password"]
+    
+    # Update the username and password for raspotify
+    with open(RASPOTIFY_FILE, "r") as f:
+        lines = f.read().splitlines()
+    final_lines = del_line_from_list(lines, 'OPTIONS')
+    
+    final_lines.append('OPTIONS=" --username {} --password {}"'.format(username, password))
+    open(RASPOTIFY_FILE,'w').write('\n'.join(final_lines))
+    restart_raspotify_service()
+    
+    
+    
+def update_spotify_app_auth_from_settings():
+    with open(SETTINGS_FILE, "r") as jsonFile:
+        data = json.load(jsonFile)
     client_id = data["spotify_client_id"]
     client_secret = data["spotify_client_secret"]
-    sonos_room = data["sonos_room"]
-
-    # Update the username and password for raspotify
-    lines = open('/etc/default/raspotify').read().splitlines()
-    line_to_rep = None
-    for i, line in enumerate(lines):
-        print(line)
-        if line.startswith("OPTIONS"):
-            print(line)
-            line_to_rep = i
-    ln = 'OPTIONS=" --username {} --password {}"'.format(username, password)
-    if line_to_rep is None:
-        lines.append(ln)
-    else:
-        lines[line_to_rep-1] = ln
-    open('/etc/default/raspotify','w').write('\n'.join(lines))
-    restart_raspotify_service()
-
+    print(client_id)
+    print(client_secret)
+    
+    with open(SONOS_SETTINGS_FILE, "r") as jsonFile:
+        data = json.load(jsonFile)
+    if not data["spotify"]:
+        data["spotify"] = {}
+    print(data)
+    data["spotify"]["clientId"] = client_id
+    data["spotify"]["clientSecret"] = client_secret
+    with open(SONOS_SETTINGS_FILE, "w") as jsonFile:
+        json.dump(data, jsonFile)
+    
     # Update spotify-cli auth
     cmd = "spotify-cli config --set-app-client-id {} --set-app-client-secret {} --set-redirect-port 5555".format(client_id, client_secret)
     output = subprocess.check_output(cmd, shell=True)
     print(output)
+    
+#    with open(SONOS_SETTINGS_FILE, "r") as ff:
+#        lines = ff.read().splitlines()
+#    final_lines = del_line_from_list(lines, 'spotify: ')
+#
+#    # Update client id and secret in settings.js
+#    match_string = 'announceVolume: 40'
+#    insert_string = {"clientId": client_id , "clientSecret": client_secret}
+#    insert_string = 'spotify: {},\n'.format(str(insert_string))
+#    print(insert_string)
+#    insert_line(SONOS_SETTINGS_FILE, match_string, insert_string, "spotify: ")
+    restart_sonos_api()
 
-    # Update presets.json && settings.json in node-sonos-http-app
+
+def update_sonos_room_from_settings():
+    with open(SETTINGS_FILE, "r") as jsonFile:
+        data = json.load(jsonFile)
+    sonos_room = data["sonos_room"]
     # Update presets for sonos room
     js = { "players": [{"roomName": sonos_room, "volume": 15}],"playMode": { "shuffle": "true", "repeat": "all", "crossfade": "false" }, "pauseOthers": "false" }
-    open("/home/pi/sonos-spotify-jukebox/node-sonos-http-api/presets/example.json", "w").write(str(js))
-
-    # Update client id and secret in settings.js
-    match_string = 'announceVolume: 40,'
-    insert_string = {"clientId": '"' + client_id + '"', "clientSecret": '"' + client_secret + '"'}
-    insert_string = 'spotify: {},\n'.format(str(insert_string))
-    print(insert_string)
-    insert_line("/home/pi/sonos-spotify-jukebox/node-sonos-http-api/settings.js", match_string, insert_string)
+    open(PRESETS_FILE, "w").write(str(js))
     restart_sonos_api()
+
