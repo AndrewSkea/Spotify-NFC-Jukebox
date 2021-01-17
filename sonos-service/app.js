@@ -44,11 +44,14 @@ app.get('/state', function (req, res) {
 app.get('/next', function (req, res) {
   sonos.next()
   .then(success => {
-    console.log('Playing: ' + spotifyURI);
     return sonos.currentTrack()
   })
   .then(track => {
-    console.log(JSON.stringify(track, null, 2))
+      sonos.play()
+      .then(success => {
+        res.send(JSON.stringify(track, null, 2));
+      })
+      .catch(err => { console.log('Error occurred %j', err) })
   })
   .catch(err => { console.log('Error occurred %j', err) })
 })

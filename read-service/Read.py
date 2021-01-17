@@ -14,73 +14,71 @@ CURRENT_DIR = os.path.dirname(__file__)
 SETTINGS_FILE = os.path.abspath(os.path.join(CURRENT_DIR, '..', 'jukebox-service', 'settings.json'))
 data = None
 
-while data is None:
-    try:
-        with open(SETTINGS_FILE, "r") as jsonFile:
-            data = json.load(jsonFile)
-    except Exception:
-        print("No settings file")
-    sleep(5)
-
-room_name = data["sonos_room"] or "Living Room"
-base_url = "http://localhost:8081/{}".format(room_name)
-base_url = base_url.replace(" ", "%20")
-play_url = base_url + "/play/"
+room_name = "Living Room"
+base_url = "http://localhost:8081"
+# base_url = base_url.replace(" ", "%20")
+play_url = base_url + "/play"
 pause_url = base_url + "/pause"
 next_url = base_url + "/next"
 
+def _print(msg):
+    print(msg)
+    sys.stdout.flush()
+
+_print(base_url)
+
 def play_playlist(uri):
-    url = "{}{}".format(play_url, uri.strip())
-    print(url)
+    url = "{}/spotify:user:{}".format(play_url, uri.strip())
+    _print(url)
     req = requests.get(url)
-    print("Play Response: {}".format(req.content))
+    _print("Play Response: {}".format(req.content))
 
 
 def do_pause():
-    print(pause_url)
+    _print(pause_url)
     req = requests.get(pause_url)
-    print("Pause Response: {}".format(req.content))
+    _print("Pause Response: {}".format(req.content))
 
 
 def do_next():
-    print(next_url)
+    _print(next_url)
     req = requests.get(next_url)
-    print("Next Response: {}".format(req.content))
+    _print("Next Response: {}".format(req.content))
 
 
 try:
     while True:
-        print("Hold a tag near the reader")
+        _print("Hold a tag near the reader")
         cid, text = reader.read_no_block()
         while not cid:
             cid, text = reader.read_no_block()
             sleep(0.5)
         past_cid = cid
         text = text.replace(" ", "")
-        print("ID: %s\nText: %s" % (cid,text))
+        _print("ID: %s\nText: %s" % (cid,text))
 
-        print("Perform action")
+        _print("Perform action")
         if text == "pause":
             do_pause()
         elif text == "next":
             do_next()
-        elif "spotify" in text:
+        elif "playlist" in text:
             play_playlist(text)
         else:
-            print("Not valid text: {}".format(text))
+            _print("Not valid text: {}".format(text))
 
         while cid and cid == past_cid:
             sleep(3)
-            print("Checking")
+            _print("Checking")
             for i in range(10):
                 cid, text = reader.read_no_block()
                 if cid:
                     break
-        print("Card removed, sleeping 5 seconds before next read")
+        _print("Card removed, sleeping 5 seconds before next read")
         sleep(5)
         
 except KeyboardInterrupt:
     GPIO.cleanup()
     raise
 except Exception as e:
-    print("FAILURE: {}".format(e))
+    _print("FAILURE: {}".format(e))
