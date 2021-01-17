@@ -1,0 +1,30 @@
+{
+  "name": "sonos-service",
+  "version": "1.0.0",
+  "description": "Sonos Controller",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/AndrewSkea/spotify-nfc-jukebox.git"
+  },
+  "keywords": [
+    "sonos",
+    "controller",
+    "jukebox",
+    "nfc",
+    "rfid"
+  ],
+  "author": "Andrew Skea",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/AndrewSkea/spotify-nfc-jukebox/issues"
+  },
+  "homepage": "https://gitlab.com/AndrewSkea/spotify-nfc-jukebox#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "sonos": "^1.14.0"
+  }
+}
