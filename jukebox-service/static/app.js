@@ -29,7 +29,12 @@ function alert(message, is_error=False, _class=null){
         }
     }
 }
-
+/*
+  setTimeout(
+            function() {
+              update_write_box.innerHTML = "";
+            }, 5000);
+*/
 /*
   THE CHECK WRITE PROGRESS FUNCTION (READ / WRITE)
 */
@@ -83,7 +88,7 @@ function startWrite() {
         var callCount = 1;
         var ret = false;
         var repeater = setInterval(function () {
-          if (callCount < 30 && ret === false) {
+          if (callCount < 30 && ( ret === false || ret == undefined)) {
             ret = checkWriteProgress();
             callCount += 1;
           } else {
@@ -111,57 +116,58 @@ function clearRead() {
 /*
   THE CHECK READ FUNCTION
 */
-function checkReadProgress(){
-    console.log("Getting Read progress");
-    fetch("/check-read-progress")
-    .then(res => {
-    try {
-        if (res.ok) {
-        return res.json()
-        } else {
-        console.log("ERROR: " + res)
-        return false;
+var checkReadProgress = new Promise(
+    function (resolve, reject) {
+        console.log("Getting Read progress");
+        fetch("/check-read-progress")
+        .then(res => {
+        try {
+            if (res.ok) {
+                return res.json()
+            } else {
+                reject("failed");
+            }
         }
-    }
-    catch (err) {
-        console.log(err.message);
-        return true;
-    }
-    })
-    .then (resJson => {
-        if (resJson.status == "success"){
-            update_read_box.innerHTML = "Content: " + resJson["uri"] + " on card with ID " + resJson["id"];
-            return true;
-        } else {
-            update_read_box.innerHTML = "Place RFID card on reader until confirmation here";
-            return false;
+        catch (err) {
+            reject("failed");
         }
-    })
-    .catch(err => console.log(err))
-}
-
+        })
+        .then (resJson => {
+            if (resJson.status == "success"){
+                update_read_box.innerHTML = "Content: " + resJson["uri"] + " on card with ID " + resJson["id"];
+                resolve("done");
+            } else {
+                update_read_box.innerHTML = "Place RFID card on reader until confirmation here";
+                resolve("waiting");
+            }
+        })
+        .catch(err => reject("failed"))
+    }
+);
 
 function startRead() {    
     console.log("Start Read progress");
-    update_read_box.innerHTML = "Please wiat, setting up Read Service";
+    update_read_box.innerHTML = "Please wait, setting up Read Service";
     fetch("/read-uri")
     .then(res => {
     try {
         if (res.ok) {
-            
-            checkReadProgress();
-            var callCount = 1;
-            var ret = false;
-            var repeater = setInterval(function () {
-              if (callCount < 30 && ret === false) {
-                ret = checkReadProgress();
-                callCount += 1;
-              } else {
-                clearInterval(repeater);
-                console.log("startRead Done");
-              }
-            }, 1000);
-            
+            var ret = "failed"
+            var callCount = 0;
+            do {
+                checkReadProgress
+                .then(function (fulfilled) {
+                    console.log(fulfilled);
+                    ret = fulfilled;
+                    callCount += 1;
+                })
+                .catch(function (error) {
+                    console.log(error.message);
+                    ret = "failed"
+                    callCount += 1;
+                });
+            }
+            while (callCount < 30 && ret === "failed");
             return false;
         } else {
         throw new Error(res)
@@ -197,8 +203,8 @@ function updateCurrentState() {
             title_el.innerHTML = resJson["state"]["title"];
             artist_el.innerHTML = resJson["state"]["artist"];
             album_el.innerHTML = resJson["state"]["album"];
-            if (cur_track_title.innerHTML == ""){
-                cur_track_title.innerHTML = "Nothing Playing"
+            if (title_el.innerHTML == ""){
+                title_el.innerHTML = "Nothing Playing"
             } 
         } else {
             alert("No connection to Sonos API", true, ".cur_playing")
