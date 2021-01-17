@@ -6,7 +6,7 @@ import os
 import requests
 from flask import Flask, render_template, Response, jsonify, request, flash, redirect, url_for
 
-from utils import make_all_access, get_sonos_room, timeout, restart_sonos_api, start_read_service, stop_read_service, update_sonos_room_from_settings, update_spotify_app_auth_from_settings, update_spotify_auth_from_settings
+from utils import *
 from constants import *
 
 try:
@@ -21,7 +21,6 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 
 global text_to_write
 
-make_all_access(RASPOTIFY_FILE)
 make_all_access(SONOS_SETTINGS_FILE)
 make_all_access(SETTINGS_FILE)
 log_constants()
@@ -107,16 +106,15 @@ def read_zone_list():
 def read_current_state():
     ret = {"status": "failed"}
     try: 
-        req = requests.get("http://localhost:5005/{}/state".format(get_sonos_room()))
+        req = requests.get(STATE_URL)
     except requests.exceptions.RequestException as e:
         req = None
     if req and req.json():
         j = req.json()
         to_ret = {
-            "cur_track_title": j["currentTrack"].get("title", ""),
-            "cur_track_artist": j["currentTrack"].get("artist", ""),
-            "next_track_title": j["nextTrack"].get("title", ""),
-            "next_track_artist": j["nextTrack"].get("artist", "")
+            "title": j["title"],
+            "album": j["album"],
+            "artist": j["artist"]
         }
         ret = {"status": "success", "state": to_ret}
     return jsonify(ret)
@@ -124,50 +122,10 @@ def read_current_state():
 
 @app.route('/next-song', methods=['POST'])
 def next_song():
-    req = requests.get("http://localhost:5005/{}/next".format(get_sonos_room()))
+    req = requests.get(NEXT_URL)
     if req.json():
         return req.json()
-
-@app.route('/update-auth', methods=['POST'])
-def update_spotify_auth():
-    username = request.form['spotify-username']
-    password = request.form['spotify-password']
-    if username != "" and password != "":
-
-        with open(SETTINGS_FILE, "r+") as jsonFile:
-            data = json.load(jsonFile)
-
-        data["spotify_username"] = username
-        data["spotify_password"] = password
-
-        with open(SETTINGS_FILE, "w+") as jsonFile:
-            json.dump(data, jsonFile)
-        update_spotify_auth_from_settings()
-        flash('Updated authentication for Spotify')
-        return redirect(url_for('index'))
-    else:
-        return {"status": "invaliad input for username or password"}
-
-
-@app.route('/update-spotify-app-auth', methods=['POST'])
-def update_spotify_app_auth():
-    client_id = request.form['spotify-client-id']
-    client_secret = request.form['spotify-client-secret']
-    if client_id != "" and client_secret != "":
-
-        with open(SETTINGS_FILE, "r+") as jsonFile:
-            data = json.load(jsonFile)
-
-        data["spotify_client_id"] = client_id
-        data["spotify_client_secret"] = client_secret
-
-        with open(SETTINGS_FILE, "w+") as jsonFile:
-            json.dump(data, jsonFile)
-        update_spotify_app_auth_from_settings()
-        flash('Updated authentication for Spotify App')
-        return redirect(url_for('index'))
-    else:
-        return {"status": "invaliad input for client_id or client_secret"}
+    return {}
 
 
 @app.route('/update-sonos', methods=['POST'])

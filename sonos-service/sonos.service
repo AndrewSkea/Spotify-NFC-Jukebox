@@ -1,0 +1,12 @@
+[Unit]
+Description=sonos-api
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+ExecStart=/usr/bin/node /home/pi/sonos-spotify-jukebox/sonos-service/app.js
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

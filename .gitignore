@@ -4,7 +4,6 @@ __pycache__/
 *$py.class
 .vscode/
 
-*.service
 read-service/ReadProd.py
 jukeboxenv/
 node-sonos-http-api/

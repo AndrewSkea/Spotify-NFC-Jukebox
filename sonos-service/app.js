@@ -30,6 +30,30 @@ app.get('/pause', function (req, res) {
 })
 
 
+app.get('/state', function (req, res) {
+  console.log('State');
+  sonos.currentTrack().then(track => {
+    console.log('Got current track %j', track)
+    return track;
+  }).catch(err => { console.log('Error occurred %j', err) })
+})
+
+
+app.get('/next', function (req, res) {
+  sonos.next()
+  .then(success => {
+    console.log('Playing: ' + spotifyURI);
+    return sonos.currentTrack()
+  })
+  .then(track => {
+    console.log(JSON.stringify(track, null, 2))
+  })
+  .catch(err => { console.log('Error occurred %j', err) })
+})
+
+
+
+
 var server = app.listen(8081, function () {
    var host = server.address().address
    var port = server.address().port

@@ -33,8 +33,9 @@
 			<article class="card-body cur_playing">
 				<h4 class="card-title mb-4 mt-1">Currently Playing</h4>
 				<hr>
-				<h2>Song: <span id="cur_track_title" class="cur_track_title" ></span> || Artist: <span id="cur_track_artist" class="cur_track_artist" ></h2>
-				<h2>Next Song: <span id="next_track_title" class="next_track_title" ></span> || Artist: <span id="next_track_artist" class="next_track_artist" ></h2>
+				<h2>Song: <span id="title" class="title" ></span></h2>
+				<h2>Artist: <span id="artist" class="artist" ></span></h2>
+				<h2>Album: <span id="album" class="album" ></span></h2>
 				<button id="next-button" class="btn btn-primary btn-block" onclick="nextSong()" > Next Song </button>
 			</article>
 		</div> <!-- card.// -->
@@ -69,48 +70,6 @@
 <article class="card-body">
 	<h4 class="card-title mb-4 mt-1">Update Spotify Auth</h4>
 	<hr>
-	<form id="update-auth-form" action="{{ url_for('update_spotify_auth') }}" method="post">
-		<div class="form-group">
-			<div class="input-group">
-				<div class="input-group-prepend">
-					<span class="input-group-text"> <i class="fa fa-user"></i> </span>
-				 </div>
-				<input id="spotify-username" name="spotify-username" class="form-control" placeholder="Username" type="text">
-			</div> <!-- input-group.// -->
-			</div> <!-- form-group// -->
-		<div class="form-group">
-			<div class="input-group">
-				<div class="input-group-prepend">
-					<span class="input-group-text"> <i class="fa fa-lock"></i> </span>
-					</div>
-				<input id="spotify-password" name="spotify-password" class="form-control" placeholder="******" type="password">
-			</div> <!-- input-group.// -->
-		</div> <!-- form-group// -->
-		<div class="form-group">
-			<button type="submit" class="btn btn-primary btn-block"> Update  </button>
-		</div> <!-- form-group// -->                                                                                            
-	</form>
-	<form id="update-client-app-form" action="{{ url_for('update_spotify_app_auth') }}" method="post">
-		<div class="form-group">
-			<div class="input-group">
-				<div class="input-group-prepend">
-					<span class="input-group-text"> <i class="fa fa-user"></i> </span>
-				 </div>
-				<input id="spotify-client-id" name="spotify-client-id" class="form-control" placeholder="Client ID" type="text">
-			</div> <!-- input-group.// -->
-			</div> <!-- form-group// -->
-		<div class="form-group">
-			<div class="input-group">
-				<div class="input-group-prepend">
-					<span class="input-group-text"> <i class="fa fa-lock"></i> </span>
-					</div>
-				<input id="spotify-client-secret" name="spotify-client-secret" class="form-control" placeholder="Client Secret" type="text">
-			</div> <!-- input-group.// -->
-		</div> <!-- form-group// -->
-		<div class="form-group">
-			<button type="submit" class="btn btn-primary btn-block"> Update  </button>
-		</div> <!-- form-group// -->                                                                                            
-	</form>
 	<form id="sonos-room-form" action="{{ url_for('update_sonos_room') }}" method="post">
 		<div class="form-group">
 			<label>Enter Default Sonos Room</label>
