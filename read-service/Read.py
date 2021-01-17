@@ -48,12 +48,9 @@ try:
         elif "spotify" in text:
             u = "{}{}".format(play_url, text)
             print(u)
-            print("Turning on shuffle")
             req = requests.get(shuffle_url)
-            sleep(1)
-            req = requests.get(u)
             sleep(0.5)
-            req = requests.get(next_url)
+            req = requests.get(u)
             print("Response: {}".format(req.content))
         else:
             print("Not valid text: {}".format(text))

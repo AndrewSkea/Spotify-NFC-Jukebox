@@ -4,6 +4,7 @@ import json
 
 CURRENT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 SETTINGS_FILE = os.path.abspath(os.path.join(CURRENT_DIR, 'settings.json'))
+STOP_READ_FILE = os.path.abspath(os.path.join(CURRENT_DIR, 'stop_read.sh'))
 if not os.path.exists(SETTINGS_FILE):
     with open(SETTINGS_FILE, "w+") as f:
         f.write("{}")
@@ -25,13 +26,16 @@ sonos_json = {
 if not os.path.exists(SONOS_SETTINGS_FILE):
     with open(SONOS_SETTINGS_FILE, "w+") as f:
         f.write(str(sonos_json))
+        
 else:
-    is_valid = True
+    with open(SETTINGS_FILE, "r+") as jsonFile:
+        data = json.load(jsonFile)
+        spot_id = data["spotify_client_id"]
+        spot_sec = data["spotify_client_secret"]
+    sonos_json["spotify"]["clientId"] = spot_id
+    sonos_json["spotify"]["clientSecret"] = spot_sec
     with open(SONOS_SETTINGS_FILE, "w+") as jsonFile:
-        try:
-            data = json.load(jsonFile)
-        except:
-            json.dump(sonos_json, jsonFile)
+        json.dump(sonos_json, jsonFile)
 
 
 def __log_constant(const):

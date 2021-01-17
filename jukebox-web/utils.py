@@ -33,7 +33,8 @@ def timeout(max_timeout):
 
 
 def restart_sonos_api():
-    cmd = ["pm2", "restart", "sonos-api-service", "-a"]
+    print("Restarting sonos api service")
+    cmd = ["sudo", "service", "sonosapi", "restart"]
     subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
 
@@ -44,9 +45,12 @@ def restart_raspotify_service():
 
 
 def stop_read_service():
-    print("Stopping read service")
-    cmd = ["pm2", "stop", "read-service", "-a"]
-    subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    print("Stopping read service: listing first")
+    cmd = "pm2 stop read-service"
+    print(cmd)
+    stream = os.popen(cmd)
+    output = stream.read()
+    print("Stopped the read service")
 
 
 def start_read_service():
@@ -123,17 +127,6 @@ def update_spotify_app_auth_from_settings():
     cmd = "spotify-cli config --set-app-client-id {} --set-app-client-secret {} --set-redirect-port 5555".format(client_id, client_secret)
     output = subprocess.check_output(cmd, shell=True)
     print(output)
-    
-#    with open(SONOS_SETTINGS_FILE, "r") as ff:
-#        lines = ff.read().splitlines()
-#    final_lines = del_line_from_list(lines, 'spotify: ')
-#
-#    # Update client id and secret in settings.js
-#    match_string = 'announceVolume: 40'
-#    insert_string = {"clientId": client_id , "clientSecret": client_secret}
-#    insert_string = 'spotify: {},\n'.format(str(insert_string))
-#    print(insert_string)
-#    insert_line(SONOS_SETTINGS_FILE, match_string, insert_string, "spotify: ")
     restart_sonos_api()
 
 

@@ -52,7 +52,13 @@ function get_sonos_http_api() {
 function run_sonos_http_api() {
   cd $HOME_DIR/node-sonos-http-api
   npm install --production
-  pm2 start npm --name "sonos-api-service" --log $HOME_DIR/logs/sonos_api_service.log  -- start
+  cd ..
+  sudo cp -f sonosapi.service /lib/systemd/system/sonosapi.service
+  sudo systemctl daemon-reload
+  sudo systemctl enable sonosapi.service
+  sudo systemctl start sonosapi.service
+  sudo systemctl status sonosapi.service
+  journalctl -u sonosapi.service
 }
 
 function start_read_service() {
@@ -63,8 +69,12 @@ function start_read_service() {
 
 function start_jukebox_admin(){
   cd $HOME_DIR/jukebox-web
-  activate_env
-  pm2 start app.py --name "jukebox-service" --log $HOME_DIR/logs/jukebox_service.log --interpreter $HOME_DIR/jukeboxenv/bin/python
+  sudo cp -f jukebox.service /etc/systemd/system/
+  sudo systemctl daemon-reload
+  sudo systemctl enable jukebox.service
+  sudo systemctl start jukebox.service
+  sudo systemctl status jukebox.service
+  journalctl -u jukebox.service
 }
 
 get_jukebox

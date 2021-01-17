@@ -6,7 +6,7 @@ import os
 import requests
 from flask import Flask, render_template, Response, jsonify, request, flash, redirect, url_for
 
-from utils import make_all_access, get_sonos_room, timeout, start_read_service, stop_read_service, update_sonos_room_from_settings, update_spotify_app_auth_from_settings, update_spotify_auth_from_settings
+from utils import make_all_access, get_sonos_room, timeout, restart_sonos_api, start_read_service, stop_read_service, update_sonos_room_from_settings, update_spotify_app_auth_from_settings, update_spotify_auth_from_settings
 from constants import *
 
 try:
@@ -25,8 +25,9 @@ make_all_access(RASPOTIFY_FILE)
 make_all_access(SONOS_SETTINGS_FILE)
 make_all_access(SETTINGS_FILE)
 log_constants()
+restart_sonos_api()
 
-global pool_result
+
 
 @app.after_request
 def add_headers(response):
@@ -39,7 +40,7 @@ def add_headers(response):
 def check_write_progress():
     global text_to_write
     print("Trying to write: " + text_to_write)
-    cid, text_in, status = None, None, "Place RFID Card on Reader"
+    cid, text_in, status = None, None, "Place RFID card on reader until confirmation here"
     for _ in range(20):
         cid, text_in = reader.write_no_block(text_to_write)
         if cid and text_in:
@@ -69,7 +70,7 @@ def write_uri(spotify_uri):
 
 @app.route("/check-read-progress", methods=['GET'])
 def check_read_progress():
-    cid, text, status = None, None, "Place RFID Card on Reader"
+    cid, text, status = None, None, "Place RFID card on reader until confirmation here"
     for _ in range(10):
         cid, text = reader.read_no_block()
         if cid:

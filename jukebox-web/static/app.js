@@ -56,7 +56,7 @@ function checkWriteProgress() {
             update_write_box.innerHTML = "Written " + resJson["uri"] + " to card with ID " + resJson["id"];
             return true;
         } else {
-            update_write_box.innerHTML = "Place RFID card on reader";
+            update_write_box.innerHTML = "Place RFID card on reader until confirmation here";
             return false;
         }
     })
@@ -70,7 +70,7 @@ function checkWriteProgress() {
 function startWrite() {
     var uri = uri_input_box.value
     console.log(uri);
-    update_write_box.innerHTML = "Place RFID card on reader";
+    update_write_box.innerHTML = "Please wait, setting up Write Service";
 
     fetch("/write-uri/" + uri, {
     method: 'post',
@@ -134,7 +134,7 @@ function checkReadProgress(){
             update_read_box.innerHTML = "Content: " + resJson["uri"] + " on card with ID " + resJson["id"];
             return true;
         } else {
-            update_read_box.innerHTML = "Place RFID card on reader";
+            update_read_box.innerHTML = "Place RFID card on reader until confirmation here";
             return false;
         }
     })
@@ -144,7 +144,7 @@ function checkReadProgress(){
 
 function startRead() {    
     console.log("Start Read progress");
-    update_read_box.innerHTML = "Place RFID card on reader";
+    update_read_box.innerHTML = "Please wiat, setting up Read Service";
     fetch("/read-uri")
     .then(res => {
     try {
