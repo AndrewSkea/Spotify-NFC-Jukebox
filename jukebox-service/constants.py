@@ -14,7 +14,7 @@ DEVICES_URL = SONOS_BASE_URL + "/devices"
 
 if not os.path.exists(SONOS_SETTINGS_FILE):
     with open(SONOS_SETTINGS_FILE, "w+") as f:
-        f.write(str({"Room": "Living Room"}))
+        json.dump({"Room": "Living Room"}, f)
 
 
 def __log_constant(const):
