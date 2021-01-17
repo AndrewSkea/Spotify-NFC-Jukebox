@@ -23,12 +23,30 @@ while data is None:
     sleep(5)
 
 room_name = data["sonos_room"] or "Living Room"
-base_url = "http://localhost:5005/{}".format(room_name)
+base_url = "http://localhost:8081/{}".format(room_name)
 base_url = base_url.replace(" ", "%20")
-play_url = base_url + "/spotify/now/"
-stop_url = base_url + "/pause"
-shuffle_url = base_url + "/shuffle/true"
+play_url = base_url + "/play/"
+pause_url = base_url + "/pause"
 next_url = base_url + "/next"
+
+def play_playlist(uri):
+    url = "{}{}".format(play_url, uri.strip())
+    print(url)
+    req = requests.get(url)
+    print("Play Response: {}".format(req.content))
+
+
+def do_pause():
+    print(pause_url)
+    req = requests.get(pause_url)
+    print("Pause Response: {}".format(req.content))
+
+
+def do_next():
+    print(next_url)
+    req = requests.get(next_url)
+    print("Next Response: {}".format(req.content))
+
 
 try:
     while True:
@@ -40,20 +58,17 @@ try:
         past_cid = cid
         text = text.replace(" ", "")
         print("ID: %s\nText: %s" % (cid,text))
+
         print("Perform action")
         if text == "pause":
-            print(stop_url)
-            req = requests.get(stop_url)
-            print("Response: {}".format(req.content))
+            do_pause()
+        elif text == "next":
+            do_next()
         elif "spotify" in text:
-            u = "{}{}".format(play_url, text)
-            print(u)
-            req = requests.get(shuffle_url)
-            sleep(0.5)
-            req = requests.get(u)
-            print("Response: {}".format(req.content))
+            play_playlist(text)
         else:
             print("Not valid text: {}".format(text))
+
         while cid and cid == past_cid:
             sleep(3)
             print("Checking")
@@ -63,6 +78,7 @@ try:
                     break
         print("Card removed, sleeping 5 seconds before next read")
         sleep(5)
+        
 except KeyboardInterrupt:
     GPIO.cleanup()
     raise

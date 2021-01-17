@@ -13,7 +13,7 @@ def get_sonos_room():
     
 
 def make_all_access(file_path):
-    cmd = ["sudo", "chmod", "777", file_path]
+    cmd = ["sudo", "chmod", "775", file_path]
     subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
 
@@ -34,7 +34,7 @@ def timeout(max_timeout):
 
 def restart_sonos_api():
     print("Restarting sonos api service")
-    cmd = ["sudo", "service", "sonosapi", "restart"]
+    cmd = ["sudo", "service", "sonos", "restart"]
     subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
 
@@ -45,18 +45,23 @@ def restart_raspotify_service():
 
 
 def stop_read_service():
-    print("Stopping read service: listing first")
-    cmd = "pm2 stop read-service"
-    print(cmd)
-    stream = os.popen(cmd)
-    output = stream.read()
-    print("Stopped the read service")
+    print("Stop read service")
+    cmd = ["sudo", "service", "read", "stop"]
+    subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    # print("Stopping read service: listing first")
+    # cmd = "pm2 stop read-service"
+    # print(cmd)
+    # stream = os.popen(cmd)
+    # output = stream.read()
+    # print("Stopped the read service")
 
 
 def start_read_service():
     print("Starting read service")
-    cmd = ["pm2", "start", "read-service", "-a"]
+    cmd = ["sudo", "service", "read", "start"]
     subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    # cmd = ["pm2", "start", "read-service", "-a"]
+    # subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
 
 def restart_all_services():
