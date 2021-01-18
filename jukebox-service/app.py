@@ -19,74 +19,108 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'UERAIJFajjdlierjlefwkfjelmm982374EFA'
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 
-global text_to_write
-
 make_all_access(SONOS_SETTINGS_FILE)
 make_all_access(SETTINGS_FILE)
 log_constants()
 restart_sonos_api()
 
+global read_thread
+read_thread = None
+global write_thread
+write_thread = None
 
 
-@app.after_request
-def add_headers(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] =  "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
-    response.headers['Access-Control-Allow-Methods'] =  "POST, GET, PUT, OPTIONS"
-    return response
+class ReadThread(threading.Thread):
+    def __init__(self):
+        self.status = "Place RFID card on reader until confirmation here"
+        self.cid = None
+        self.text = None
+        self.init_time = time.time()
+        super().__init__()
+
+    def run(self):
+        print("Starting Read")
+        t = time.time() - self.init_time
+        while self.cid is None and t < 30:
+            self.cid, self.text = reader.read_no_block()
+            self.status = "Place RFID card on reader until confirmation here. (timeout in {}s)".format(int(30-t))
+            time.sleep(0.1)
+        self.status = "complete"
+
+class WriteThread(threading.Thread):
+    def __init__(self, write_text):
+        self.status = "Place RFID card on reader until confirmation here"
+        self.cid = None
+        self.text = None
+        self.write_text = write_text
+        self.init_time = time.time()
+        super().__init__()
+
+    def run(self):
+        print("Trying to write: " + self.write_text)
+        t = time.time() - self.init_time
+        while self.cid is None and t < 30:
+            self.cid, self.text = reader.write_no_block(self.write_text)
+            self.status = "Place RFID card on reader until confirmation here. (timeout in {}s)".format(int(30-t))
+            time.sleep(0.1)
+        self.status = "complete"
+
 
 @app.route("/check-write-progress", methods=['GET'])
 def check_write_progress():
-    global text_to_write
-    print("Trying to write: " + text_to_write)
-    cid, text_in, status = None, None, "Place RFID card on reader until confirmation here"
-    for _ in range(20):
-        cid, text_in = reader.write_no_block(text_to_write)
-        if cid and text_in:
-            break
-            
-    if cid and text_in:
-        print("Successfully written {} to {}".format(cid, text_in))
-        start_read_service()
-        status = "success"
-    return {"status": status, "id": cid, "uri": text_in}
+    global write_thread
+
+    if write_thread.cid:
+        data = {
+            "status": "complete",
+            "cid": write_thread.cid,
+            "uri": write_thread.text
+        }
+        write_thread = None
+        return data
+    else:
+        return {"status": write_thread.status, "id": "", "uri": ""}
 
 
 @app.route('/write-uri/<spotify_uri>', methods=['POST'])
 def write_uri(spotify_uri):
-    print(spotify_uri)
+    print("Writing endpoint called with spot_uri: {}".format(spotify_uri))
     if spotify_uri.strip() == "stop":
         spotify_uri = "pause"
     spotify_uri += max(8-len(spotify_uri), 0) * " "
-    global text_to_write
-    text_to_write = spotify_uri
-    print("Reading endpoint called")
+
     stop_read_service()
-    ret = check_write_progress()
-    return ret
+    global write_thread
+    write_thread = WriteThread(spotify_uri)
+    write_thread.start()
+    return check_write_progress()
     
     
 
 @app.route("/check-read-progress", methods=['GET'])
 def check_read_progress():
-    cid, text, status = None, None, "Place RFID card on reader until confirmation here"
-    for _ in range(10):
-        cid, text = reader.read_no_block()
-        if cid:
-            break
-            
-    if cid and text:
-        start_read_service()
-        status = "success"
-    return {"status": status, "id": cid, "uri": text}
+    global read_thread
+
+    if read_thread.cid:
+        data = {
+            "status": "complete",
+            "cid": read_thread.cid,
+            "uri": read_thread.text
+        }
+        read_thread = None
+        return data
+    else:
+        return {"status": read_thread.status, "id": "", "uri": ""}
 
 
 @app.route('/read-uri', methods=['GET'])
 def read_uri():
     print("Reading endpoint called")
     stop_read_service()
-    ret = check_read_progress()
-    return ret
+    global read_thread
+    read_thread = ReadThread(spotify_uri)
+    read_thread.start()
+    return check_read_progress()
 
 
 @app.route('/get-zone-list', methods=['GET'])
@@ -142,6 +176,14 @@ def update_sonos_room():
         return redirect(url_for('index'))
     else:
         return {"status": "invaliad input for sonos_room"}
+
+
+@app.after_request
+def add_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] =  "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
+    response.headers['Access-Control-Allow-Methods'] =  "POST, GET, PUT, OPTIONS"
+    return response
 
 
 @app.route('/', methods=['GET'])

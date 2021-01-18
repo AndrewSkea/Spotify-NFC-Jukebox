@@ -30,41 +30,43 @@ function alert(message, is_error=False, _class=null){
     }
 }
 /*
-  setTimeout(
-            function() {
-              update_write_box.innerHTML = "";
-            }, 5000);
-*/
-/*
   THE CHECK WRITE PROGRESS FUNCTION (READ / WRITE)
 */
 function checkWriteProgress() {
-    console.log("Getting Write progress");
-    fetch("/check-write-progress")
-    .then(res => {
-    try {
-        if (res.ok) {
-        return res.json()
-        } else {
-        console.log("ERROR: " + res)
-        return false;
-        }
+    function worker() {
+        $.get('/check-write-progress', function(data) {
+            if (data.status != "complete") {
+                update_write_box.innerHTML = data.status
+                setTimeout(worker, 1000)
+            } else {
+                if (data.cid != ""){
+                    update_write_box.innerHTML = "Written " + data.uri + " to card with ID " + data.cid;
+                } else {
+                    update_write_box.innerHTML = "Time out on this function, please try again. If it fails again, reboot the Raspberry Pi."
+                }
+                
+            }
+        })
     }
-    catch (err) {
-        console.log(err.message);
-        return true;
+}
+
+
+function checkWriteProgress() {
+    function worker() {
+        $.get('/check-read-progress', function(data) {
+            if (data.status != "complete") {
+                update_read_box.innerHTML = data.status
+                setTimeout(worker, 1000)
+            } else {
+                if (data.cid != ""){
+                    update_read_box.innerHTML = "Written " + data.uri + " to card with ID " + data.cid;
+                } else {
+                    update_read_box.innerHTML = "Time out on this function, please try again. If it fails again, reboot the Raspberry Pi."
+                }
+                
+            }
+        })
     }
-    })
-    .then (resJson => {
-        if (resJson.status == "success"){
-            update_write_box.innerHTML = "Written " + resJson["uri"] + " to card with ID " + resJson["id"];
-            return true;
-        } else {
-            update_write_box.innerHTML = "Place RFID card on reader until confirmation here";
-            return false;
-        }
-    })
-    .catch(err => console.log(err))
 }
 
 
@@ -83,19 +85,7 @@ function startWrite() {
     }, body: ''
     })
     .then(function (data) {
-        console.log('Request succeeded with JSON response', data);
         checkWriteProgress();
-        var callCount = 1;
-        var ret = false;
-        var repeater = setInterval(function () {
-          if (callCount < 30 && ( ret === false || ret == undefined)) {
-            ret = checkWriteProgress();
-            callCount += 1;
-          } else {
-            clearInterval(repeater);
-            console.log("startWrite Done");
-          }
-        }, 1000);
     })
     .catch(function (error) {
     console.log('Request failed', error);
@@ -116,34 +106,7 @@ function clearRead() {
 /*
   THE CHECK READ FUNCTION
 */
-var checkReadProgress = new Promise(
-    function (resolve, reject) {
-        console.log("Getting Read progress");
-        fetch("/check-read-progress")
-        .then(res => {
-        try {
-            if (res.ok) {
-                return res.json()
-            } else {
-                reject("failed");
-            }
-        }
-        catch (err) {
-            reject("failed");
-        }
-        })
-        .then (resJson => {
-            if (resJson.status == "success"){
-                update_read_box.innerHTML = "Content: " + resJson["uri"] + " on card with ID " + resJson["id"];
-                resolve("done");
-            } else {
-                update_read_box.innerHTML = "Place RFID card on reader until confirmation here";
-                resolve("waiting");
-            }
-        })
-        .catch(err => reject("failed"))
-    }
-);
+
 
 function startRead() {    
     console.log("Start Read progress");
@@ -152,23 +115,7 @@ function startRead() {
     .then(res => {
     try {
         if (res.ok) {
-            var ret = "failed"
-            var callCount = 0;
-            do {
-                checkReadProgress
-                .then(function (fulfilled) {
-                    console.log(fulfilled);
-                    ret = fulfilled;
-                    callCount += 1;
-                })
-                .catch(function (error) {
-                    console.log(error.message);
-                    ret = "failed"
-                    callCount += 1;
-                });
-            }
-            while (callCount < 30 && ret === "failed");
-            return false;
+            checkReadProgress();
         } else {
         throw new Error(res)
         }
