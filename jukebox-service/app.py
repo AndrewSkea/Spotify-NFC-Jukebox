@@ -1,5 +1,4 @@
-from multiprocessing import Pool, context
-from multiprocessing.context import TimeoutError
+import threading
 import time
 import json
 import os
@@ -42,6 +41,7 @@ class ReadThread(threading.Thread):
         print("Starting Read")
         t = time.time() - self.init_time
         while self.cid is None and t < 30:
+            t = time.time() - self.init_time
             self.cid, self.text = reader.read_no_block()
             self.status = "Place RFID card on reader until confirmation here. (timeout in {}s)".format(int(30-t))
             time.sleep(0.1)
@@ -60,6 +60,7 @@ class WriteThread(threading.Thread):
         print("Trying to write: " + self.write_text)
         t = time.time() - self.init_time
         while self.cid is None and t < 30:
+            t = time.time() - self.init_time
             self.cid, self.text = reader.write_no_block(self.write_text)
             self.status = "Place RFID card on reader until confirmation here. (timeout in {}s)".format(int(30-t))
             time.sleep(0.1)
@@ -69,7 +70,7 @@ class WriteThread(threading.Thread):
 @app.route("/check-write-progress", methods=['GET'])
 def check_write_progress():
     global write_thread
-
+    print("check write, cid: {}, text: {}, status: {}".format(write_thread.cid, write_thread.text, write_thread.status))
     if write_thread.cid:
         data = {
             "status": "complete",
@@ -77,6 +78,7 @@ def check_write_progress():
             "uri": write_thread.text
         }
         write_thread = None
+        start_read_service()
         return data
     else:
         return {"status": write_thread.status, "id": "", "uri": ""}
@@ -100,7 +102,7 @@ def write_uri(spotify_uri):
 @app.route("/check-read-progress", methods=['GET'])
 def check_read_progress():
     global read_thread
-
+    print("check read, cid: {}, text: {}, status: {}".format(read_thread.cid, read_thread.text, read_thread.status))
     if read_thread.cid:
         data = {
             "status": "complete",
@@ -108,8 +110,10 @@ def check_read_progress():
             "uri": read_thread.text
         }
         read_thread = None
+        start_read_service()
         return data
     else:
+        print("check read, no cid, status: {}".format(read_thread.status))
         return {"status": read_thread.status, "id": "", "uri": ""}
 
 
@@ -118,7 +122,7 @@ def read_uri():
     print("Reading endpoint called")
     stop_read_service()
     global read_thread
-    read_thread = ReadThread(spotify_uri)
+    read_thread = ReadThread()
     read_thread.start()
     return check_read_progress()
 
@@ -141,6 +145,9 @@ def read_current_state():
         req = requests.get(STATE_URL)
     except requests.exceptions.RequestException as e:
         req = None
+    print(req)
+    if req:
+        print(req.json())
     if req and req.json():
         j = req.json()
         to_ret = {

@@ -19,7 +19,7 @@ app.get('/play/:spotifyURI', function (req, res) {
   .then(track => {
     console.log(JSON.stringify(track, null, 2))
   })
-  .catch(err => { console.log('Error occurred %j', err) })
+  .catch(err => { res.send('Error occurred %j', err) })
 })
 
 
@@ -27,8 +27,8 @@ app.get('/pause', function (req, res) {
   console.log('Paused');
   sonos.pause().then(success => {
     console.log('Paused')
-    res.send("Paused");
-    }).catch(err => { console.log('Error occurred %j', err) })
+    res.send("Success");
+    }).catch(err => { res.send('Error occurred %j', err) })
 })
 
 
@@ -37,7 +37,16 @@ app.get('/state', function (req, res) {
   sonos.currentTrack().then(track => {
     console.log('Got current track %j', track)
     res.send(JSON.stringify(track, null, 2));
-  }).catch(err => { console.log('Error occurred %j', err) })
+  }).catch(err => { res.send('Error occurred %j', err) })
+})
+
+
+app.get('/shuffle', function (req, res) {
+  console.log('Shuffle');
+  sonos.setPlayMode('SHrUFFLE').then(success => {
+    console.log('Got current track %j', track)
+    res.send("Success");
+  }).catch(err => { res.send('Error occurred %j', err) })
 })
 
 
@@ -51,9 +60,9 @@ app.get('/next', function (req, res) {
       .then(success => {
         res.send(JSON.stringify(track, null, 2));
       })
-      .catch(err => { console.log('Error occurred %j', err) })
+      .catch(err => { res.send('Error occurred %j', err) })
   })
-  .catch(err => { console.log('Error occurred %j', err) })
+  .catch(err => { res.send('Error occurred %j', err) })
 })
 
 

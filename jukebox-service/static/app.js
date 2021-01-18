@@ -1,4 +1,14 @@
-var note, uri_input_box, update_write_box, update_read_box, cur_track_title, cur_track_artist, next_track_title, next_track_artist;
+var log_table, uri_input_box, update_write_box, update_read_box, cur_track_title, cur_track_artist, next_track_title, next_track_artist;
+
+function log(message) {
+    console.log(message);
+    var row = log_table.insertRow(0);
+    var cell = row.insertCell(0);
+    cell.innerHTML = message;
+    if (log_table.rows.length > 10) {
+        log_table.deleteRow(10);
+    }
+}
 
 $(document).ready(function() {
     uri_input_box = document.getElementById('uri_input_box');
@@ -7,6 +17,7 @@ $(document).ready(function() {
     title_el = document.getElementById('title');
     artist_el = document.getElementById('artist');
     album_el = document.getElementById('album');
+    log_table = document.getElementById('log-table');
     updateCurrentState()
 
     $("#write-form").submit(function(e) {
@@ -16,57 +27,50 @@ $(document).ready(function() {
     window.setInterval(function(){
         updateCurrentState()
     }, 5000);
+    
+    log("Finished Setup of page");
 });
 
-function alert(message, is_error=False, _class=null){
-    if (_class != null){
-        $(_class).notify(message);
-    } else {
-        if (is_error){
-            $.notify(message, "error");
-        } else {
-            $.notify(message, "success");
-        }
-    }
-}
 /*
   THE CHECK WRITE PROGRESS FUNCTION (READ / WRITE)
 */
 function checkWriteProgress() {
-    function worker() {
         $.get('/check-write-progress', function(data) {
             if (data.status != "complete") {
                 update_write_box.innerHTML = data.status
-                setTimeout(worker, 1000)
+                setTimeout(checkWriteProgress, 1000)
             } else {
                 if (data.cid != ""){
-                    update_write_box.innerHTML = "Written " + data.uri + " to card with ID " + data.cid;
+                    var s = "Written " + data.uri + " to card with ID " + data.cid + ". Remove card from reader";
+                    update_write_box.innerHTML = s;
+                    log(s);
+                    log("Finished Write");
                 } else {
                     update_write_box.innerHTML = "Time out on this function, please try again. If it fails again, reboot the Raspberry Pi."
                 }
                 
             }
         })
-    }
 }
 
 
-function checkWriteProgress() {
-    function worker() {
+function checkReadProgress() {
         $.get('/check-read-progress', function(data) {
             if (data.status != "complete") {
                 update_read_box.innerHTML = data.status
-                setTimeout(worker, 1000)
+                setTimeout(checkReadProgress, 1000)
             } else {
                 if (data.cid != ""){
-                    update_read_box.innerHTML = "Written " + data.uri + " to card with ID " + data.cid;
+                    var s = "URI found: " + data.uri + " on card with ID " + data.cid + ". Remove card from reader";
+                    update_read_box.innerHTML = s;
+                    log(s);
+                    log("Finished Read");
                 } else {
                     update_read_box.innerHTML = "Time out on this function, please try again. If it fails again, reboot the Raspberry Pi."
                 }
                 
             }
         })
-    }
 }
 
 
@@ -75,7 +79,7 @@ function checkWriteProgress() {
 */
 function startWrite() {
     var uri = uri_input_box.value
-    console.log(uri);
+    log(uri);
     update_write_box.innerHTML = "Please wait, setting up Write Service";
 
     fetch("/write-uri/" + uri, {
@@ -88,7 +92,7 @@ function startWrite() {
         checkWriteProgress();
     })
     .catch(function (error) {
-    console.log('Request failed', error);
+    log('Request failed', error);
     return false;
     });
 
@@ -109,7 +113,7 @@ function clearRead() {
 
 
 function startRead() {    
-    console.log("Start Read progress");
+    log("Start Read progress");
     update_read_box.innerHTML = "Please wait, setting up Read Service";
     fetch("/read-uri")
     .then(res => {
@@ -121,7 +125,7 @@ function startRead() {
         }
     }
     catch (err) {
-        console.log(err.message)
+        log(err.message)
         return false;
     }
     })
@@ -141,7 +145,7 @@ function updateCurrentState() {
         }
     }
     catch (err) {
-        console.log(err.message)
+        log(err.message)
         return {"status": "Failed"}
     }
     })
@@ -171,7 +175,7 @@ function nextSong() {
     }, body: ''
     })
     .then(function (data) {
-        console.log('Request finished with JSON response', data);
+        log('Request finished with JSON response', data);
         if (data["status"] == "error"){
             alert("Coudn't perform this action", true)
         } else {
@@ -180,7 +184,7 @@ function nextSong() {
         }
     })
     .catch(function (error) {
-        console.log('Request failed', error);
+        log('Request failed', error);
     });
 
 }

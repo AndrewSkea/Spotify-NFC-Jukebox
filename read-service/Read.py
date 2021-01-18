@@ -27,12 +27,6 @@ def _print(msg):
 
 _print(base_url)
 
-def play_playlist(uri):
-    url = "{}/spotify:user:{}".format(play_url, uri.strip())
-    _print(url)
-    req = requests.get(url)
-    _print("Play Response: {}".format(req.content))
-
 
 def do_pause():
     _print(pause_url)
@@ -44,6 +38,14 @@ def do_next():
     _print(next_url)
     req = requests.get(next_url)
     _print("Next Response: {}".format(req.content))
+    
+    
+def play_playlist(uri):
+    url = "{}/spotify:user:{}".format(play_url, uri.strip())
+    _print(url)
+    req = requests.get(url)
+    _print("Play Response: {}".format(req.content))
+    do_next() # So it doesn't start with the same one each time
 
 
 try:
@@ -75,7 +77,7 @@ try:
                 if cid:
                     break
         _print("Card removed, sleeping 5 seconds before next read")
-        sleep(5)
+        do_pause()
         
 except KeyboardInterrupt:
     GPIO.cleanup()
