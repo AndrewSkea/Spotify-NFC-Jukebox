@@ -18,6 +18,7 @@ room_name = "Living Room"
 base_url = "http://localhost:8081"
 # base_url = base_url.replace(" ", "%20")
 play_url = base_url + "/play"
+shuffle_url = base_url + "/shuffle"
 pause_url = base_url + "/pause"
 next_url = base_url + "/next"
 
@@ -39,9 +40,16 @@ def do_next():
     req = requests.get(next_url)
     _print("Next Response: {}".format(req.content))
     
+
+def do_shuffle():
+    _print(shuffle_url)
+    req = requests.get(shuffle_url)
+    _print("Shuffle Response: {}".format(req.content))
+    
     
 def play_playlist(uri):
     url = "{}/spotify:user:{}".format(play_url, uri.strip())
+    do_shuffle()
     _print(url)
     req = requests.get(url)
     _print("Play Response: {}".format(req.content))
