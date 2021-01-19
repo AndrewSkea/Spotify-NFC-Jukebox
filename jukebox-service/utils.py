@@ -38,12 +38,6 @@ def restart_sonos_api():
     subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
 
-def restart_raspotify_service():
-    print("Restarting raspotify")
-    cmd = ["sudo", "service", "raspotify", "restart"]
-    subprocess.Popen(cmd, stdout=subprocess.PIPE)
-
-
 def stop_read_service():
     print("Stop read service")
     cmd = ["sudo", "service", "read", "stop"]
@@ -58,6 +52,5 @@ def start_read_service():
 
 def restart_all_services():
     restart_sonos_api()
-    restart_raspotify_service()
     stop_read_service()
     start_read_service()

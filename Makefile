@@ -1,16 +1,19 @@
 sonos-logs:
-	journalctl -u sonos.service
+	journalctl -ru sonos.service
 
 
 jukebox-logs:
-	journalctl -u jukebox.service
+	journalctl -ru jukebox.service
 
 
 read-logs:
-	journalctl -u read.service
+	journalctl -ru read.service
 
 
 restart-all:
 	sudo service read restart
 	sudo service sonos restart
 	sudo service jukebox restart
+
+activate:
+	source jukeboxenv/bin/activate
