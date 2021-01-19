@@ -1,7 +1,104 @@
-.top-row {
-    padding-bottom: 5%;
+.bottom-row {
+    padding-top: 2%;
 }
 
-.bottom-row {
-    padding-top: 5%;
+@import url('https://fonts.googleapis.com/css?family=Muli&display=swap');
+
+* {
+	box-sizing: border-box;
+}
+
+
+body {
+	background-image: linear-gradient(45deg, #fdfdfd, #a3a0cf);
+	font-family: 'Muli', sans-serif;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	min-height: 100vh;
+	margin: 0;
+}
+
+.courses-container {
+	
+}
+
+.course {
+	background-color: #fff;
+	border-radius: 10px;
+	box-shadow: 0 10px 10px rgba(0, 0, 0, 0.2);
+	display: flex;
+	max-width: 100%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+	overflow: hidden;
+	width: 100%;
+}
+
+.course h6 {
+	opacity: 0.6;
+	margin: 0;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+}
+
+.course h2 {
+	letter-spacing: 1px;
+	margin: 10px 0;
+}
+
+.course-preview {
+	background-color: #2A265F;
+	color: #fff;
+	padding: 30px;
+	max-width: 250px;
+}
+
+.course-preview a {
+	color: #fff;
+	display: inline-block;
+	font-size: 12px;
+	opacity: 0.6;
+	margin-top: 30px;
+	text-decoration: none;
+}
+
+.course-info {
+	padding: 30px;
+	position: relative;
+	width: 100%;
+}
+
+
+.btn {
+	background-color: #2A265F;
+	border: 0;
+	border-radius: 50px;
+	box-shadow: 0 10px 10px rgba(0, 0, 0, 0.2);
+	color: #fff;
+	font-size: 16px;
+	padding: 12px 25px;
+	bottom: 30px;
+	right: 30px;
+	letter-spacing: 1px;
+}
+
+.top-btn {
+    position: absolute;
+}
+
+.btn-two {
+    width: 49.2%
+}
+
+.card {
+    min-height: 275px;
+}
+
+@media screen and (max-width: 480px) {
+	
+	.floating-btn {
+		right: 10px;
+	}
 }

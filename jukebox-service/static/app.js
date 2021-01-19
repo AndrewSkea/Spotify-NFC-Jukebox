@@ -27,12 +27,12 @@ $(document).ready(function() {
     artist_el = document.getElementById('artist');
     album_el = document.getElementById('album');
     log_table = document.getElementById('log-table');
-    updateCurrentState()
 
     $("#write-form").submit(function(e) {
         e.preventDefault();
     });
-
+    
+    updateCurrentState()
     window.setInterval(function(){
         updateCurrentState()
     }, 3000);
