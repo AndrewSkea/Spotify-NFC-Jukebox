@@ -160,25 +160,25 @@ def read_current_state():
 @app.route('/next-song', methods=['GET'])
 def next_song():
     req = requests.get(NEXT_URL)
-    if req.json():
-        return req.json()
-    return {}
+    if req.status_code < 400:
+        return {"status": "success"}
+    return {"status": "failure"}
     
 
 @app.route('/pause-song', methods=['GET'])
 def pause_song():
     req = requests.get(PAUSE_URL)
-    if req.json():
-        return req.json()
-    return {}
+    if req.status_code < 400:
+        return {"status": "success"}
+    return {"status": "failure"}
     
     
 @app.route('/play-song', methods=['GET'])
 def play_song():
     req = requests.get(PLAY_URL)
-    if req.json():
-        return req.json()
-    return {}
+    if req.status_code < 400:
+        return {"status": "success"}
+    return {"status": "failure"}
 
 
 @app.route('/update-sonos', methods=['POST'])

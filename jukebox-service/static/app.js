@@ -161,7 +161,6 @@ function updateCurrentState() {
     .then (resJson => {
         if (resJson["state"]){
             var title = resJson["state"]["title"];
-            console.log("Paused: " + resJson["state"]["is_paused"]);
             if (resJson["state"]["is_paused"]){
                 state_el.innerHTML = "Paused";
                 toggle_play.innerHTML = "Play";
