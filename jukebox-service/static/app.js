@@ -54,6 +54,7 @@ function checkWriteProgress() {
                     update_write_box.innerHTML = s;
                     log(s);
                     log("Finished Write");
+                    setTimeout(clearWrite, 10000);
                 } else {
                     update_write_box.innerHTML = "Time out on this function, please try again. If it fails again, reboot the Raspberry Pi."
                 }
@@ -74,6 +75,7 @@ function checkReadProgress() {
                     update_read_box.innerHTML = s;
                     log(s);
                     log("Finished Read");
+                    setTimeout(clearRead, 10000);
                 } else {
                     update_read_box.innerHTML = "Time out on this function, please try again. If it fails again, reboot the Raspberry Pi."
                 }
