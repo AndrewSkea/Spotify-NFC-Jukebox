@@ -10,6 +10,8 @@ SETTINGS_FILE = os.path.abspath(os.path.join(APP_HOME, 'config', 'settings.json'
 SONOS_BASE_URL = "http://localhost:8081"
 STATE_URL = SONOS_BASE_URL + "/state"
 NEXT_URL = SONOS_BASE_URL + "/next"
+PLAY_URL = SONOS_BASE_URL + "/play"
+PAUSE_URL = SONOS_BASE_URL + "/pause"
 DEVICES_URL = SONOS_BASE_URL + "/devices"
 
 if not os.path.exists(SETTINGS_FILE):

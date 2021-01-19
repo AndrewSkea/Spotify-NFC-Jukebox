@@ -89,6 +89,15 @@ app.get('/next', function (req, res) {
 })
 
 
+app.get('/play', function (req, res) {
+  console.log('Paused');
+  sonos.play().then(success => {
+    console.log('Play')
+    res.send("Success");
+    }).catch(err => { console.warn('Error occurred %j', err) })
+})
+
+
 app.get('/devices', function (req, res) {
   discovery.discover().then((device, model) => {
     console.log('Found one sonos device %s getting all groups', device.host)

@@ -3,7 +3,7 @@ import time
 import json
 import os
 import requests
-from flask import Flask, render_template, Response, jsonify, request, flash, redirect, url_for
+from flask import Flask, send_from_directory, render_template, Response, jsonify, request, flash, redirect, url_for
 
 from utils import *
 from constants import *
@@ -144,12 +144,8 @@ def read_current_state():
         req = requests.get(STATE_URL)
     except requests.exceptions.RequestException as e:
         req = None
-    print(req)
-    if req:
-        print(req.json())
     if req and req.json():
         j = req.json()
-        print(j)
         is_paused = True if j.get("state", "") == "paused" else False
         to_ret = {
             "title": j["playing"].get("title", ""),
@@ -161,9 +157,25 @@ def read_current_state():
     return jsonify(ret)
 
 
-@app.route('/next-song', methods=['POST'])
+@app.route('/next-song', methods=['GET'])
 def next_song():
     req = requests.get(NEXT_URL)
+    if req.json():
+        return req.json()
+    return {}
+    
+
+@app.route('/pause-song', methods=['GET'])
+def pause_song():
+    req = requests.get(PAUSE_URL)
+    if req.json():
+        return req.json()
+    return {}
+    
+    
+@app.route('/play-song', methods=['GET'])
+def play_song():
+    req = requests.get(PLAY_URL)
     if req.json():
         return req.json()
     return {}
@@ -193,6 +205,12 @@ def add_headers(response):
     response.headers['Access-Control-Allow-Headers'] =  "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
     response.headers['Access-Control-Allow-Methods'] =  "POST, GET, PUT, OPTIONS"
     return response
+    
+    
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                          'favicon.ico',mimetype='image/vnd.microsoft.icon')
 
 
 @app.route('/', methods=['GET'])

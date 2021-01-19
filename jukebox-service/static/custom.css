@@ -64,12 +64,26 @@ body {
 	text-decoration: none;
 }
 
+.custom-preview {
+	background-color: white;
+	max-width: 200px;
+	overflow: show;
+	position: relative;
+	float: none;
+}
+
 .course-info {
 	padding: 30px;
 	position: relative;
 	width: 100%;
 }
 
+.top-btn {
+	width: 150px;
+	display: block;
+	text-align: center;
+	margin-top: 15%;
+}
 
 .btn {
 	background-color: #2A265F;
@@ -84,8 +98,10 @@ body {
 	letter-spacing: 1px;
 }
 
-.top-btn {
-    position: absolute;
+.buttons {
+	position: absolute;
+	right: 10px;
+	bottom: 10px;
 }
 
 .btn-two {

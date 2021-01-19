@@ -28,6 +28,7 @@ $(document).ready(function() {
     artist_el = document.getElementById('artist');
     album_el = document.getElementById('album');
     log_table = document.getElementById('log-table');
+    toggle_play = document.getElementById('toggle-play');
 
     $("#write-form").submit(function(e) {
         e.preventDefault();
@@ -101,7 +102,7 @@ function startWrite() {
     }, body: ''
     })
     .then(function (data) {
-        checkWriteProgress();
+        setTimeout(checkWriteProgress, 1000);
     })
     .catch(function (error) {
     log('Request failed', error);
@@ -127,7 +128,7 @@ function startRead() {
     .then(res => {
     try {
         if (res.ok) {
-            checkReadProgress();
+            setTimeout(checkReadProgress, 1000);
         } else {
         throw new Error(res)
         }
@@ -163,8 +164,10 @@ function updateCurrentState() {
             console.log("Paused: " + resJson["state"]["is_paused"]);
             if (resJson["state"]["is_paused"]){
                 state_el.innerHTML = "Paused";
+                toggle_play.innerHTML = "Play";
             } else {
                 state_el.innerHTML = "Playing";
+                toggle_play.innerHTML = "Pause";
             }
             title_el.innerHTML = title;
             artist_el.innerHTML = resJson["state"]["artist"];
@@ -201,6 +204,74 @@ function nextSong() {
     .catch(function (error) {
         log('Request failed', error);
     });
-
 }
 
+
+function togglePlay() {
+    if (toggle_play.innerHTML === "Pause"){
+        pause()
+    }
+    if (toggle_play.innerHTML === "Play"){
+        play()
+    }
+}
+
+
+function next() {
+    fetch("/next-song")
+    .then(res => {
+    try {
+        if (res.ok) {
+            updateCurrentState()
+            return res.json()
+        } else {
+            throw new Error(res)
+        }
+    }
+    catch (err) {
+        return err;
+    }
+    }).catch(function (error) {
+        log('Request failed', error);
+    });
+}
+
+
+function pause() {
+    fetch("/pause-song")
+    .then(res => {
+    try {
+        if (res.ok) {
+            updateCurrentState()
+            return res.json()
+        } else {
+            throw new Error(res)
+        }
+    }
+    catch (err) {
+        return err;
+    }
+    }).catch(function (error) {
+        log('Request failed', error);
+    });
+}
+
+
+function play() {
+    fetch("/play-song")
+    .then(res => {
+    try {
+        if (res.ok) {
+            updateCurrentState()
+            return res.json()
+        } else {
+            throw new Error(res)
+        }
+    }
+    catch (err) {
+        return err;
+    }
+    }).catch(function (error) {
+        log('Request failed', error);
+    });
+}
