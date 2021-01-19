@@ -180,7 +180,7 @@ def update_sonos_room():
 
         with open(SETTINGS_FILE, "w+") as jsonFile:
             json.dump(data, jsonFile)
-        update_sonos_room_from_settings()
+        restart_sonos_api()
         flash('Updated Sonos Room preference')
         return redirect(url_for('index'))
     else:
