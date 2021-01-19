@@ -10,6 +10,15 @@ function log(message) {
     }
 }
 
+function alert(message, is_error){
+    if (is_error){
+        $.notify(message, "error");
+    } else {
+        $.notify(message, "success");
+    }
+}
+
+
 $(document).ready(function() {
     uri_input_box = document.getElementById('uri_input_box');
     update_write_box = document.getElementById('update_write_box');
@@ -26,7 +35,7 @@ $(document).ready(function() {
 
     window.setInterval(function(){
         updateCurrentState()
-    }, 5000);
+    }, 3000);
     
     log("Finished Setup of page");
 });
@@ -107,10 +116,6 @@ function clearRead() {
     update_read_box.innerHTML = "";
 }
 
-/*
-  THE CHECK READ FUNCTION
-*/
-
 
 function startRead() {    
     log("Start Read progress");
@@ -151,14 +156,19 @@ function updateCurrentState() {
     })
     .then (resJson => {
         if (resJson["state"]){
-            title_el.innerHTML = resJson["state"]["title"];
+            var title = resJson["state"]["title"];
+            console.log("Paused: " + resJson["state"]["is_paused"]);
+            if (resJson["state"]["is_paused"]){
+                title = "(Paused) " + title;
+            }
+            title_el.innerHTML = title;
             artist_el.innerHTML = resJson["state"]["artist"];
             album_el.innerHTML = resJson["state"]["album"];
             if (title_el.innerHTML == ""){
                 title_el.innerHTML = "Nothing Playing"
             } 
         } else {
-            alert("No connection to Sonos API", true, ".cur_playing")
+            alert("No connection to Sonos API", true)
         }
     return resJson.data
     })

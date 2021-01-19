@@ -150,10 +150,13 @@ def read_current_state():
         print(req.json())
     if req and req.json():
         j = req.json()
+        print(j)
+        is_paused = True if j.get("state", "") == "paused" else False
         to_ret = {
-            "title": j["title"],
-            "album": j["album"],
-            "artist": j["artist"]
+            "title": j["playing"].get("title", ""),
+            "album": j["playing"].get("album", ""),
+            "artist": j["playing"].get("artist", ""),
+            "is_paused": is_paused
         }
         ret = {"status": "success", "state": to_ret}
     return jsonify(ret)

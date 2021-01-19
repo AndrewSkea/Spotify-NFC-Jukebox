@@ -36,14 +36,29 @@ app.get('/state', function (req, res) {
   console.log('State');
   sonos.currentTrack().then(track => {
     console.log('Got current track %j', track)
-    res.send(JSON.stringify(track, null, 2));
+    sonos.getCurrentState().then(state => {
+      console.log('Got current state %j', state)
+      var data = {
+        "playing": track,
+        "state": state
+      }
+      res.send(JSON.stringify(data, null, 2));
+    }).catch(err => { res.send('Error occurred %j', err) })
+  }).catch(err => { res.send('Error occurred %j', err) })
+})
+
+app.get('/state', function (req, res) {
+  console.log('State');
+  sonos.getCurrentState().then(state => {
+    console.log('Got current track %j', state)
+    res.send(JSON.stringify(state, null, 2));
   }).catch(err => { res.send('Error occurred %j', err) })
 })
 
 
 app.get('/shuffle', function (req, res) {
   console.log('Shuffle');
-  sonos.setPlayMode('SHrUFFLE').then(success => {
+  sonos.setPlayMode('SHUFFLE').then(success => {
     console.log('Got current track %j', track)
     res.send("Success");
   }).catch(err => { res.send('Error occurred %j', err) })
@@ -94,7 +109,8 @@ var server = app.listen(8081, function () {
       sonos.setSpotifyRegion(Regions.EU)
       return groups[0]
     })
-  }).catch(e => {
+  })
+  .catch(e => {
     console.warn(' Error in discovery %j', e)
   });
 
