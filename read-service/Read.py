@@ -26,8 +26,6 @@ def _print(msg):
     print(msg)
     sys.stdout.flush()
 
-_print(base_url)
-
 
 def do_pause():
     _print(pause_url)
@@ -46,16 +44,20 @@ def do_shuffle():
     req = requests.get(shuffle_url)
     _print("Shuffle Response: {}".format(req.content))
     
-    
-def play_playlist(uri):
-    url = "{}/spotify:user:{}".format(play_url, uri.strip())
-    do_shuffle()
+
+def play(uri):
+    uri = uri.strip()
+    if "playlist" in uri:
+        uri = "spotify:user:" + uri
+    url = "{}/{}".format(play_url, uri)
     _print(url)
+    do_shuffle()
     req = requests.get(url)
     _print("Play Response: {}".format(req.content))
     do_next() # So it doesn't start with the same one each time
 
 
+_print("Base URL: ".format(base_url))
 try:
     while True:
         _print("Hold a tag near the reader")
@@ -66,14 +68,12 @@ try:
         past_cid = cid
         text = text.replace(" ", "")
         _print("ID: %s\nText: %s" % (cid,text))
-
-        _print("Perform action")
         if text == "pause":
             do_pause()
         elif text == "next":
             do_next()
-        elif "playlist" in text:
-            play_playlist(text)
+        elif "spotify" in text:
+            play(text)
         else:
             _print("Not valid text: {}".format(text))
 
@@ -84,7 +84,7 @@ try:
                 cid, text = reader.read_no_block()
                 if cid:
                     break
-        _print("Card removed, sleeping 5 seconds before next read")
+        _print("Card removed, pausing music")
         do_pause()
         
 except KeyboardInterrupt:
