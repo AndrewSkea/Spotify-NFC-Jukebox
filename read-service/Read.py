@@ -11,7 +11,7 @@ reader = SimpleMFRC522()
 
 past_cid = None
 CURRENT_DIR = os.path.dirname(__file__)
-SETTINGS_FILE = os.path.abspath(os.path.join(CURRENT_DIR, '..', 'jukebox-service', 'settings.json'))
+SETTINGS_FILE = os.path.abspath(os.path.join(CURRENT_DIR, '..', 'config', 'settings.json'))
 data = None
 
 room_name = "Living Room"

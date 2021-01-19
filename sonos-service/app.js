@@ -1,9 +1,12 @@
 var express = require('express');
 var app = express();
 var fs = require("fs");
+let jsonData = require('../config/settings.json');
+
 const Son = require('sonos')
 const Sonos = require('sonos').Sonos
-const Regions = require('sonos').SpotifyRegion
+const Regions = require('sonos').SpotifyRegion;
+const { group } = require('console');
 const discovery = new Son.AsyncDeviceDiscovery()
 var sonos;
 
@@ -100,14 +103,24 @@ app.get('/devices', function (req, res) {
 
 
 var server = app.listen(8081, function () {
+  console.log("Wanted room name: " + jsonData.sonos_room);
   discovery.discover().then((device, model) => {
     console.log('Found one sonos device %s getting all groups', device.host)
     return device.getAllGroups().then((groups) => {
-      console.log(JSON.stringify(groups, null, 2))
-      console.log("HOST: " + groups[0]["host"])
-      sonos = new Sonos(process.env.SONOS_NAME || groups[0]["host"])
+      var ip_add = groups[0]["host"];
+      console.log("Default will be: " + groups[0].Name)
+      if (jsonData.sonos_room != "") {
+        groups.forEach(group => {
+          if (group.Name === jsonData.sonos_room){
+              console.log("Using: " + group.Name)
+              ip_add = group.host;
+          }
+        });
+      }
+      console.log("Using ip address: " + ip_add)
+      sonos = new Sonos(ip_add)
       sonos.setSpotifyRegion(Regions.EU)
-      return groups[0]
+      return ip_add
     })
   })
   .catch(e => {

@@ -18,7 +18,6 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'UERAIJFajjdlierjlefwkfjelmm982374EFA'
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 
-make_all_access(SONOS_SETTINGS_FILE)
 make_all_access(SETTINGS_FILE)
 log_constants()
 restart_sonos_api()
