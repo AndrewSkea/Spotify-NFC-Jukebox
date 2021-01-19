@@ -16,9 +16,9 @@ data = None
 
 room_name = "Living Room"
 base_url = "http://localhost:8081"
-# base_url = base_url.replace(" ", "%20")
 play_url = base_url + "/play"
 shuffle_url = base_url + "/shuffle"
+flush_url = base_url + "/flush"
 pause_url = base_url + "/pause"
 next_url = base_url + "/next"
 
@@ -44,6 +44,12 @@ def do_shuffle():
     req = requests.get(shuffle_url)
     _print("Shuffle Response: {}".format(req.content))
     
+    
+def do_flush():
+    _print(flush_url)
+    req = requests.get(flush_url)
+    _print("Flush Response: {}".format(req.content))
+    
 
 def play(uri):
     uri = uri.strip()
@@ -51,10 +57,10 @@ def play(uri):
         uri = "spotify:user:" + uri
     url = "{}/{}".format(play_url, uri)
     _print(url)
+    do_flush()
     do_shuffle()
     req = requests.get(url)
     _print("Play Response: {}".format(req.content))
-    do_next() # So it doesn't start with the same one each time
 
 
 _print("Base URL: ".format(base_url))

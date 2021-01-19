@@ -1,4 +1,4 @@
-var log_table, uri_input_box, update_write_box, update_read_box, cur_track_title, cur_track_artist, next_track_title, next_track_artist;
+var log_table, uri_input_box, update_write_box, update_read_box, state_el, artist_el, album_el, title_el;
 
 function log(message) {
     console.log(message);
@@ -23,6 +23,7 @@ $(document).ready(function() {
     uri_input_box = document.getElementById('uri_input_box');
     update_write_box = document.getElementById('update_write_box');
     update_read_box = document.getElementById('update_read_box');
+    state_el = document.getElementById('state');
     title_el = document.getElementById('title');
     artist_el = document.getElementById('artist');
     album_el = document.getElementById('album');
@@ -161,7 +162,9 @@ function updateCurrentState() {
             var title = resJson["state"]["title"];
             console.log("Paused: " + resJson["state"]["is_paused"]);
             if (resJson["state"]["is_paused"]){
-                title = "(Paused) " + title;
+                state_el.innerHTML = "Paused";
+            } else {
+                state_el.innerHTML = "Playing";
             }
             title_el.innerHTML = title;
             artist_el.innerHTML = resJson["state"]["artist"];

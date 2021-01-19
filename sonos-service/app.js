@@ -22,7 +22,7 @@ app.get('/play/:spotifyURI', function (req, res) {
   .then(track => {
     console.log(JSON.stringify(track, null, 2))
   })
-  .catch(err => { res.send('Error occurred %j', err) })
+  .catch(err => { console.warn('Error occurred %j', err) })
 })
 
 
@@ -31,7 +31,7 @@ app.get('/pause', function (req, res) {
   sonos.pause().then(success => {
     console.log('Paused')
     res.send("Success");
-    }).catch(err => { res.send('Error occurred %j', err) })
+    }).catch(err => { console.warn('Error occurred %j', err) })
 })
 
 
@@ -46,8 +46,8 @@ app.get('/state', function (req, res) {
         "state": state
       }
       res.send(JSON.stringify(data, null, 2));
-    }).catch(err => { res.send('Error occurred %j', err) })
-  }).catch(err => { res.send('Error occurred %j', err) })
+    }).catch(err => { console.warn('Error occurred %j', err) })
+  }).catch(err => { console.warn('Error occurred %j', err) })
 })
 
 app.get('/state', function (req, res) {
@@ -55,16 +55,21 @@ app.get('/state', function (req, res) {
   sonos.getCurrentState().then(state => {
     console.log('Got current track %j', state)
     res.send(JSON.stringify(state, null, 2));
-  }).catch(err => { res.send('Error occurred %j', err) })
+  }).catch(err => { console.warn('Error occurred %j', err) })
 })
 
 
 app.get('/shuffle', function (req, res) {
-  console.log('Shuffle');
-  sonos.setPlayMode('SHUFFLE').then(success => {
-    console.log('Got current track %j', track)
+  sonos.setPlayMode('SHUFFLE').then(() => {
     res.send("Success");
-  }).catch(err => { res.send('Error occurred %j', err) })
+  }).catch(err => { console.warn('Error occurred %j', err) })
+})
+
+
+app.get('/flush', function (req, res) {
+  sonos.flush().then(() => {
+    res.send("Success");
+  }).catch(err => { console.warn('Error occurred %j', err) })
 })
 
 
@@ -78,9 +83,9 @@ app.get('/next', function (req, res) {
       .then(success => {
         res.send(JSON.stringify(track, null, 2));
       })
-      .catch(err => { res.send('Error occurred %j', err) })
+      .catch(err => { console.warn('Error occurred %j', err) })
   })
-  .catch(err => { res.send('Error occurred %j', err) })
+  .catch(err => { console.warn('Error occurred %j', err) })
 })
 
 
