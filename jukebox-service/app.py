@@ -5,6 +5,7 @@ import os
 import requests
 from flask import Flask, send_from_directory, render_template, Response, jsonify, request, flash, redirect, url_for
 
+from read import ReadService, flash_led
 from utils import *
 from constants import *
 
@@ -22,10 +23,33 @@ make_all_access(SETTINGS_FILE)
 log_constants()
 restart_sonos_api()
 
+global read_proc
+read_proc = ReadService()
+
 global read_thread
 read_thread = None
 global write_thread
 write_thread = None
+
+
+def stop_read():
+    ret = False
+    if read_proc:
+        read_proc.terminate()
+        time.sleep(0.1)
+        if not read_proc.is_alive():
+            ret = True
+    return ret
+
+
+def start_read():
+    ret = False
+    if read_proc:
+        read_proc.start()
+        time.sleep(0.1)
+        if read_proc.is_alive():
+            ret = True
+    return ret
 
 
 class ReadThread(threading.Thread):
@@ -71,13 +95,14 @@ def check_write_progress():
     global write_thread
     print("check write, cid: {}, text: {}, status: {}".format(write_thread.cid, write_thread.text, write_thread.status))
     if write_thread.cid:
+        flash_led()
         data = {
             "status": "complete",
             "cid": write_thread.cid,
             "uri": write_thread.text
         }
         write_thread = None
-        start_read_service()
+        start_read()
         return data
     else:
         return {"status": write_thread.status, "id": "", "uri": ""}
@@ -90,7 +115,7 @@ def write_uri(spotify_uri):
         spotify_uri = "pause"
     spotify_uri += max(8-len(spotify_uri), 0) * " "
 
-    stop_read_service()
+    stop_read()
     global write_thread
     write_thread = WriteThread(spotify_uri)
     write_thread.start()
@@ -103,13 +128,14 @@ def check_read_progress():
     global read_thread
     print("check read, cid: {}, text: {}, status: {}".format(read_thread.cid, read_thread.text, read_thread.status))
     if read_thread.cid:
+        flash_led()
         data = {
             "status": "complete",
             "cid": read_thread.cid,
             "uri": read_thread.text
         }
         read_thread = None
-        start_read_service()
+        start_read()
         return data
     else:
         print("check read, no cid, status: {}".format(read_thread.status))
@@ -119,7 +145,7 @@ def check_read_progress():
 @app.route('/read-uri', methods=['GET'])
 def read_uri():
     print("Reading endpoint called")
-    stop_read_service()
+    stop_read()
     global read_thread
     read_thread = ReadThread()
     read_thread.start()
@@ -218,4 +244,6 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
+    global read_proc
+    read_proc.start()
     app.run(debug=True, host='0.0.0.0', port=8000)

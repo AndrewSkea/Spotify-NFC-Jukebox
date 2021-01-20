@@ -1,0 +1,12 @@
+[Unit]
+Description=ShutdownService
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+ExecStart=/home/pi/sonos-spotify-jukebox/jukeboxenv/bin/python /home/pi/sonos-spotify-jukebox/scripts/shutdown.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
