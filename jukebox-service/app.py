@@ -23,33 +23,63 @@ make_all_access(SETTINGS_FILE)
 log_constants()
 restart_sonos_api()
 
-global read_proc
-read_proc = ReadService()
+read_proc = None
+
+global start_readservice_thread
+start_readservice_thread = None
 
 global read_thread
 read_thread = None
+
 global write_thread
 write_thread = None
 
 
 def stop_read():
+    global read_proc
+    print("Stopping read service")
     ret = False
+    print(read_proc)
     if read_proc:
         read_proc.terminate()
+        read_proc.kill()
         time.sleep(0.1)
+        read_proc.join(timeout=1.0)
+        print("Terminating read")
+        time.sleep(0.1)
+        print(read_proc)
         if not read_proc.is_alive():
+            print("Terminated")
             ret = True
     return ret
-
-
+    
+    
 def start_read():
-    ret = False
-    if read_proc:
+    t = time.time()
+    start_readservice_thread = StartReadServiceThread()
+    start_readservice_thread.start()
+    print(time.time() - t)
+    return True
+
+
+class StartReadServiceThread(threading.Thread):
+    def __init__(self):
+        super().__init__()
+
+    def run(self):
+        time.sleep(5)
+        global read_proc
+        print("Starting read service")
+        ret = False
+        if read_proc:
+            read_proc.terminate()
+            read_proc.join(timeout=1.0)
+        read_proc = ReadService()
         read_proc.start()
         time.sleep(0.1)
         if read_proc.is_alive():
             ret = True
-    return ret
+        return ret
 
 
 class ReadThread(threading.Thread):
@@ -111,7 +141,7 @@ def check_write_progress():
 @app.route('/write-uri/<spotify_uri>', methods=['POST'])
 def write_uri(spotify_uri):
     print("Writing endpoint called with spot_uri: {}".format(spotify_uri))
-    if spotify_uri.strip() == "stop":
+    if str(spotify_uri).strip() == "stop":
         spotify_uri = "pause"
     spotify_uri += max(8-len(spotify_uri), 0) * " "
 
@@ -244,6 +274,6 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    global read_proc
+    read_proc = ReadService()
     read_proc.start()
-    app.run(debug=True, host='0.0.0.0', port=8000)
+    app.run(debug=True, host='0.0.0.0', port=8000, use_reloader=False)

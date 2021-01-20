@@ -52,7 +52,7 @@ function checkWriteProgress() {
                 setTimeout(checkWriteProgress, 1000)
             } else {
                 if (data.cid != ""){
-                    var s = "Written: " + data.uri + "<br>Card ID:" + data.cid + "<br>Remove card from reader";
+                    var s = "Written: " + data.uri + "<br>Card ID:" + data.cid + "<br><b>Remove card from reader</b>";
                     update_write_box.innerHTML = s;
                     log(s);
                     log("Finished Write");
@@ -73,7 +73,7 @@ function checkReadProgress() {
                 setTimeout(checkReadProgress, 1000)
             } else {
                 if (data.cid != ""){
-                    var s = "URI: " + data.uri + "<br>Card ID:" + data.cid + "<br>Remove card from reader";
+                    var s = "URI: " + data.uri + "<br>Card ID:" + data.cid + "<br><b>Remove card from reader</b>";
                     update_read_box.innerHTML = s;
                     log(s);
                     log("Finished Read");
