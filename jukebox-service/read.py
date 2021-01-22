@@ -59,9 +59,10 @@ class ReadService(mp.Process):
         self.make_request(self.flush_url)
     
     def play(self, uri):
-        uri = uri.strip(uri)
+        uri = uri.strip()
         if "playlist" in uri:
             uri = "spotify:user:" + uri
+        self._print("URI: " + uri)
         url = "{}/{}".format(self.play_url, uri)
         self.do_flush()
         self.do_shuffle()
