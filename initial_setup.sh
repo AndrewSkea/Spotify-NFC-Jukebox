@@ -29,7 +29,7 @@ function activate_env(){
 function run_sonos_http_api() {
   cd $HOME_DIR/sonos-service
   npm install
-  sudo cp -f sonos.service /lib/systemd/system/sonos.service
+  sudo cp -f sonos.service /etc/systemd/system/sonos.service
   sudo systemctl daemon-reload
   sudo systemctl enable sonos.service
   sudo systemctl start sonos.service
