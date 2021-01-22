@@ -50,7 +50,6 @@ function start_jukebox_admin(){
 
 create_python_env
 activate_env
-get_sonos_http_api
 run_sonos_http_api
 start_jukebox_admin
 
