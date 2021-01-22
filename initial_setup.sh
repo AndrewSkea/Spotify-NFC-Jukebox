@@ -7,7 +7,7 @@ echo "This assumes you have at least python3 installed as well as a working and 
 set -x
 sudo apt update -y
 sudo apt upgrade -y
-sudo apt-get install -y curl apt-transport-https nodejs npm
+sudo apt-get install -y curl apt-transport-https nodejs npm python3-venv
 
 echo "dtparam=spi=on" | sudo tee -a /boot/config.txt
 sudo dtparam spi=on
