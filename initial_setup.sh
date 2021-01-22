@@ -5,8 +5,8 @@ echo "Starting installation in $HOME_DIR"
 echo "This assumes you have at least python3 installed as well as a working and connected NFC HAT for the raspberry pi"
 
 set -x
-sudo apt update
-sudo apt upgrade
+sudo apt update -y
+sudo apt upgrade -y
 sudo apt-get install -y curl apt-transport-https nodejs npm
 
 echo "dtparam=spi=on" | sudo tee -a /boot/config.txt
