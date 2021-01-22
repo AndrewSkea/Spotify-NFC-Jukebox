@@ -1,5 +1,9 @@
 # Spotify NFC Jukebox 
 
+!! WARNING !!
+THIS WILL RESET YOUR HOSTNAME (to jukebox) AND AUTOLOGIN FILE (to autologin with pi user)
+GO THROUGH THE INITIAL_SETUP.SH SCRIPT TO ENSURE YOU UNDERSTAND THE CHANGES BEING MADE
+
 Disclaimer: Project still in progress (please fork and open PRs to suggest improvements)
 
 ## About
