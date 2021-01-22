@@ -1,10 +1,9 @@
 #!/bin/bash
-cd $( cd "$( dirname "$BASH_SOURCE[0]}" )" $$ pwd)
+set -xe
 export HOME_DIR="$(pwd)"
 echo "Starting installation in $HOME_DIR"
 echo "This assumes you have at least python3 installed as well as a working and connected NFC HAT for the raspberry pi"
 
-set -x
 sudo apt update -y
 sudo apt upgrade -y
 sudo apt-get install -y curl apt-transport-https nodejs npm python3-venv
@@ -55,8 +54,11 @@ get_sonos_http_api
 run_sonos_http_api
 start_jukebox_admin
 
+sudo sed -i "s/raspberrypi/jukebox/g" /etc/hosts
+sudo sed -i "s/raspberrypi/jukebox/g" /etc/hostname
+
 echo "Use Makefile to complete commands following this setup"
-echo "Rebooting in 10 seconds, visit http://raspberry.local:8000 to setup connections to Spotify and Sonos"
+echo "Rebooting in 10 seconds, visit http://jukebox.local:8000 to setup connections to Spotify and Sonos"
 sleep 10
 sudo reboot
 set +x
