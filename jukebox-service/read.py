@@ -36,10 +36,15 @@ class ReadService(mp.Process):
         sys.stdout.flush()
 
     def make_request(self, url):
-        self._print("Request to: " + url)
-        req = requests.get(url)
-        # flash_led()
-        self._print("Response: {}".format(req.content))
+        try:
+            self._print("Request to: " + url)
+            req = requests.get(url)
+            # flash_led()
+            self._print("Response: {}".format(req.content))
+            return True
+        except:
+            self._print("Response: FAILED - no connection")
+            return False
 
     def do_pause(self):
         self.make_request(self.pause_url)
