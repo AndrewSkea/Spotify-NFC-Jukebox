@@ -37,11 +37,9 @@ class ReadService(mp.Process):
 
     def make_request(self, url):
         self._print("Request to: " + url)
-        # req = requests.get(url)
-        req = "Success"
-        self._print("Success")
+        req = requests.get(url)
         # flash_led()
-        # self._print("Response: {}".format(req.content))
+        self._print("Response: {}".format(req.content))
 
     def do_pause(self):
         self.make_request(self.pause_url)
