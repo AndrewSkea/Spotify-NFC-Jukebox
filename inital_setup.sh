@@ -38,17 +38,6 @@ function run_sonos_http_api() {
   journalctl -u jukebox.service -r --no-pager
 }
 
-function start_read_service() {
-  cd $HOME_DIR/read-service
-  activate_env
-  sudo cp -f read.service /lib/systemd/system/read.service
-  sudo systemctl daemon-reload
-  sudo systemctl enable read.service
-  sudo systemctl start read.service
-  sudo systemctl status read.service
-  journalctl -u jukebox.service -r --no-pager
-}
-
 function start_jukebox_admin(){
   cd $HOME_DIR/jukebox-service
   activate_env
@@ -64,7 +53,6 @@ create_python_env
 activate_env
 get_sonos_http_api
 run_sonos_http_api
-start_read_service
 start_jukebox_admin
 
 echo "Use Makefile to complete commands following this setup"
