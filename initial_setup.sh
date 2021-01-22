@@ -56,6 +56,12 @@ start_jukebox_admin
 sudo sed -i "s/raspberrypi/jukebox/g" /etc/hosts
 sudo sed -i "s/raspberrypi/jukebox/g" /etc/hostname
 
+FOLDER=/etc/systemd/system/getty@tty1.service.d/
+sudo mkdir -p $FOLDER
+echo '[Service]' | sudo tee $FOLDER/autologin.conf
+echo 'ExecStart=' | sudo tee -a $FOLDER/autologin.conf
+echo 'ExecStart=-/sbin/agetty --autologin pi --noclear %I $TERM' | sudo tee -a $FOLDER/autologin.conf
+
 echo "Use Makefile to complete commands following this setup"
 echo "Rebooting in 10 seconds, visit http://jukebox.local:8000 to setup connections to Spotify and Sonos"
 sleep 10
