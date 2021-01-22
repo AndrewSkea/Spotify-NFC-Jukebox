@@ -5,8 +5,8 @@ After=network.target
 [Service]
 Type=simple
 User=pi
-WorkingDirectory=/home/pi/sonos-spotify-jukebox/jukebox-service
-ExecStart=/home/pi/sonos-spotify-jukebox/jukeboxenv/bin/python /home/pi/sonos-spotify-jukebox/jukebox-service/app.py
+WorkingDirectory=/home/pi/spotify-nfc-jukebox/jukebox-service
+ExecStart=/home/pi/spotify-nfc-jukebox/jukeboxenv/bin/python /home/pi/spotify-nfc-jukebox/jukebox-service/app.py
 Restart=always
 
 [Install]
