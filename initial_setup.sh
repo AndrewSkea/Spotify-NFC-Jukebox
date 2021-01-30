@@ -1,15 +1,23 @@
 #!/bin/bash
-set -xe
-export HOME_DIR="$(pwd)"
+set -x
+
+export HOME_DIR=~/jukebox
+mkdir -p $HOME_DIR
+echo "Copying source files to $HOME_DIR so it is seperate to this git repo (so you can change this repo without affecting the service"
+cp -fr src/* $HOME_DIR
+
 echo "Starting installation in $HOME_DIR"
 echo "This assumes you have at least python3 installed as well as a working and connected NFC HAT for the raspberry pi"
 
+curl -sSL https://dtcooper.github.io/raspotify/key.asc | sudo apt-key add -v -
+echo 'deb https://dtcooper.github.io/raspotify raspotify main' | sudo tee /etc/apt/sources.list.d/raspotify.list
 sudo apt update -y
 sudo apt upgrade -y
-sudo apt-get install -y curl apt-transport-https nodejs npm python3-venv
+sudo apt-get install -y curl apt-transport-https nodejs npm python3-venv raspotify
 
 echo "dtparam=spi=on" | sudo tee -a /boot/config.txt
 sudo dtparam spi=on
+sudo amixer cset numid=3 <1>
 
 nodejs -v
 
@@ -32,8 +40,6 @@ function run_sonos_http_api() {
   sudo cp -f sonos.service /etc/systemd/system/sonos.service
   sudo systemctl daemon-reload
   sudo systemctl enable sonos.service
-  sudo systemctl start sonos.service
-  sudo systemctl status sonos.service
   journalctl -u jukebox.service -r --no-pager
 }
 
@@ -44,7 +50,6 @@ function start_jukebox_admin(){
   sudo systemctl daemon-reload
   sudo systemctl enable jukebox.service
   sudo systemctl start jukebox.service
-  sudo systemctl status jukebox.service
   journalctl -u jukebox.service -r --no-pager
 }
 

@@ -3,3 +3,4 @@ gunicorn==18.0.0
 requests
 mfrc522==0.0.7
 RPi.GPIO==0.7.0
+spotify-cli
