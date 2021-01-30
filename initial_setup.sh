@@ -1,5 +1,5 @@
 #!/bin/bash
-set -xe
+set -x
 export HOME_DIR="$(pwd)"
 echo "Starting installation in $HOME_DIR"
 echo "This assumes you have at least python3 installed as well as a working and connected NFC HAT for the raspberry pi"
@@ -33,7 +33,6 @@ function run_sonos_http_api() {
   sudo systemctl daemon-reload
   sudo systemctl enable sonos.service
   sudo systemctl start sonos.service
-  sudo systemctl status sonos.service
   journalctl -u jukebox.service -r --no-pager
 }
 
@@ -44,7 +43,6 @@ function start_jukebox_admin(){
   sudo systemctl daemon-reload
   sudo systemctl enable jukebox.service
   sudo systemctl start jukebox.service
-  sudo systemctl status jukebox.service
   journalctl -u jukebox.service -r --no-pager
 }
 
