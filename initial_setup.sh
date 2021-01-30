@@ -40,6 +40,10 @@ function run_sonos_http_api() {
   sudo cp -f sonos.service /etc/systemd/system/sonos.service
   sudo systemctl daemon-reload
   sudo systemctl enable sonos.service
+<<<<<<< HEAD
+=======
+  sudo systemctl start sonos.service
+>>>>>>> 5af3391b3eff19118fa3e4b68b782f1365e2ec6a
   journalctl -u jukebox.service -r --no-pager
 }
 
