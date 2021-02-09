@@ -237,6 +237,30 @@ def play_song():
     return {"status": "failure"}
 
 
+@app.route('/change-to-sonos', methods=['GET'])
+def change_to_sonos():
+    with open(SETTINGS_FILE, "r+") as jsonFile:
+        data = json.load(jsonFile)
+
+    data["audio"] = "sonos"
+
+    with open(SETTINGS_FILE, "w+") as jsonFile:
+        json.dump(data, jsonFile)
+    return {"status": "success"}
+    
+    
+@app.route('/change-to-aux', methods=['GET'])
+def change_to_sonos():
+    with open(SETTINGS_FILE, "r+") as jsonFile:
+        data = json.load(jsonFile)
+
+    data["audio"] = "aux"
+
+    with open(SETTINGS_FILE, "w+") as jsonFile:
+        json.dump(data, jsonFile)
+    return {"status": "success"}
+    
+
 @app.route('/update-sonos', methods=['POST'])
 def update_sonos_room():
     sonos_room = request.form['sonos-room']
@@ -252,21 +276,21 @@ def update_sonos_room():
         flash('Updated Sonos Room preference')
         return redirect(url_for('index'))
     else:
-        return {"status": "invaliad input for sonos_room"}
+        return {"status": "invalid input for sonos_room"}
 
 
 @app.after_request
 def add_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] =  "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
-    response.headers['Access-Control-Allow-Methods'] =  "POST, GET, PUT, OPTIONS"
+    response.headers['Access-Control-Allow-Headers'] = "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
+    response.headers['Access-Control-Allow-Methods'] = "POST, GET, PUT, OPTIONS"
     return response
     
     
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
-                          'favicon.ico',mimetype='image/vnd.microsoft.icon')
+                          'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 @app.route('/', methods=['GET'])

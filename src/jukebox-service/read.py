@@ -6,6 +6,14 @@ import requests
 import multiprocessing as mp
 from multiprocessing import current_process
 
+from cli.commands.devices import devices
+from cli.commands.shuffle import shuffle
+from cli.commands.play import play
+from cli.commands.pause import pause
+from cli.commands.next import _next
+
+from utils import is_sonos
+
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
@@ -47,26 +55,41 @@ class ReadService(mp.Process):
             return False
 
     def do_pause(self):
-        self.make_request(self.pause_url)
+        if is_sonos():
+            pause()
+        else:
+            self.make_request(self.pause_url)
 
     def do_next(self):
-        self.make_request(self.next_url)
+        if is_sonos():
+            _next()
+        else:
+            self.make_request(self.next_url)
         
     def do_shuffle(self):
-        self.make_request(self.shuffle_url)
+        if is_sonos():
+            shuffle()
+        else:
+            self.make_request(self.shuffle_url)
         
     def do_flush(self):
-        self.make_request(self.flush_url)
+        if is_sonos():
+            pass
+        else:
+            self.make_request(self.flush_url)
     
     def play(self, uri):
         uri = uri.strip()
-        if "playlist" in uri:
-            uri = "spotify:user:" + uri
-        self._print("URI: " + uri)
-        url = "{}/{}".format(self.play_url, uri)
         self.do_flush()
         self.do_shuffle()
-        self.make_request(url)
+        if is_sonos():
+            play(keyword=uri, play_type="uri", shuffle=True)
+        else:
+            if "playlist" in uri:
+                uri = "spotify:user:" + uri
+            self._print("URI: " + uri)
+            url = "{}/{}".format(self.play_url, uri)
+            self.make_request(url)
 
     def run(self):
         self._print("Started run with base url: {}".format(self.base_url))

@@ -1,4 +1,6 @@
-var log_table, uri_input_box, update_write_box, update_read_box, state_el, artist_el, album_el, title_el;
+var aux_button_el, sonos_button_el, log_table, uri_input_box, 
+update_write_box, update_read_box, state_el, artist_el, 
+album_el, title_el;
 
 function log(message) {
     console.log(message);
@@ -29,6 +31,8 @@ $(document).ready(function() {
     album_el = document.getElementById('album');
     log_table = document.getElementById('log-table');
     toggle_play = document.getElementById('toggle-play');
+    aux_button_el = document.getElementById('aux-button');
+    sonos_button_el = document.getElementById('sonos-button');
 
     $("#write-form").submit(function(e) {
         e.preventDefault();
@@ -244,6 +248,50 @@ function pause() {
             updateCurrentState()
             return res.json()
         } else {
+            throw new Error(res)
+        }
+    }
+    catch (err) {
+        return err;
+    }
+    }).catch(function (error) {
+        log('Request failed', error);
+    });
+}
+
+
+function changeToSonos() {
+    fetch("/change-to-sonos")
+    .then(res => {
+    try {
+        if (res.ok) {
+            aux_button_el.style.display = "block";
+            sonos_button_el.style.display = "none";
+            alert("Changed to Sonos", false)
+        } else {
+            alert("Changed to Sonos failed", true)
+            throw new Error(res)
+        }
+    }
+    catch (err) {
+        return err;
+    }
+    }).catch(function (error) {
+        log('Request failed', error);
+    });
+}
+
+
+function changeToAux() {
+    fetch("/change-to-aux")
+    .then(res => {
+    try {
+        if (res.ok) {
+            aux_button_el.style.display = "none";
+            sonos_button_el.style.display = "block";
+            alert("Changed to AUX", false)
+        } else {
+            alert("Changed to AUX failed", true)
             throw new Error(res)
         }
     }

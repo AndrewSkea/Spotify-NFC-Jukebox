@@ -19,7 +19,16 @@ def timeout(max_timeout):
             return async_result.get(max_timeout)
         return func_wrapper
     return timeout_decorator
-    
+
+
+def is_sonos():
+    with open(SETTINGS_FILE, "r") as jsonFile:
+        data = json.load(jsonFile)
+    audio = data.get("audio", "")
+    if audio == "aux":
+        return False
+    return True
+
     
 def get_sonos_room():
     with open(SETTINGS_FILE, "r") as jsonFile:
