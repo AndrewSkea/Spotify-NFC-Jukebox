@@ -9,7 +9,7 @@ jukeboxenv/
 node-sonos-http-api/
 jukebox-service/settings.json
 src/sonos-service/node_modules/
-**/node_modules/
+node_modules/
 # C extensions
 *.so
 

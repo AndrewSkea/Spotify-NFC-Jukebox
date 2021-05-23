@@ -5,7 +5,8 @@ After=network.target
 [Service]
 Type=simple
 User=pi
-ExecStart=/usr/bin/node /home/pi/jukebox/sonos-service/app.js
+ExecStart=/usr/bin/node app.js
+WorkingDirectory=/home/pi/spotify-nfc-jukebox/src/sonos-service
 Restart=always
 
 [Install]

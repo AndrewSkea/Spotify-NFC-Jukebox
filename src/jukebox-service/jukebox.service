@@ -1,12 +1,12 @@
 [Unit]
-Description=JukeboxService
+Description=ReadService
 After=network.target
 
 [Service]
 Type=simple
 User=pi
-WorkingDirectory=/home/pi/jukebox/jukebox-service
-ExecStart=/home/pi/jukebox/jukeboxenv/bin/python /home/pi/jukebox/jukebox-service/app.py
+WorkingDirectory=/home/pi/spotify-nfc-jukebox/src/scripts
+ExecStart=/home/pi/spotify-nfc-jukebox/venv/bin/python ButtonRead.py
 Restart=always
 
 [Install]

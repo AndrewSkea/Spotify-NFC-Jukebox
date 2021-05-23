@@ -22,7 +22,7 @@ app.get('/play/:spotifyURI', function (req, res) {
   .then(track => {
     console.log(JSON.stringify(track, null, 2))
   })
-  .catch(err => { console.warn('Error occurred %j', err) })
+  .catch(err => { console.warn('Error occurred %s', err); return err; })
 })
 
 
@@ -31,45 +31,45 @@ app.get('/pause', function (req, res) {
   sonos.pause().then(success => {
     console.log('Paused')
     res.send("Success");
-    }).catch(err => { console.warn('Error occurred %j', err) })
+    }).catch(err => { console.warn('Error occurred %s', err); return "FAILED"; })
 })
 
 
 app.get('/state', function (req, res) {
   console.log('State');
   sonos.currentTrack().then(track => {
-    console.log('Got current track %j', track)
+    console.log('Got current track %s', track)
     sonos.getCurrentState().then(state => {
-      console.log('Got current state %j', state)
+      console.log('Got current state %s', state)
       var data = {
         "playing": track,
         "state": state
       }
       res.send(JSON.stringify(data, null, 2));
-    }).catch(err => { console.warn('Error occurred %j', err) })
-  }).catch(err => { console.warn('Error occurred %j', err) })
+    }).catch(err => { console.warn('Error occurred %s', err); return err; })
+  }).catch(err => { console.warn('Error occurred %s', err); return err; })
 })
 
 app.get('/state', function (req, res) {
   console.log('State');
   sonos.getCurrentState().then(state => {
-    console.log('Got current track %j', state)
+    console.log('Got current track %s', state)
     res.send(JSON.stringify(state, null, 2));
-  }).catch(err => { console.warn('Error occurred %j', err) })
+  }).catch(err => { console.warn('Error occurred %s', err); return err; })
 })
 
 
 app.get('/shuffle', function (req, res) {
   sonos.setPlayMode('SHUFFLE').then(() => {
     res.send("Success");
-  }).catch(err => { console.warn('Error occurred %j', err) })
+  }).catch(err => { console.warn('Error occurred %s', err); return err; })
 })
 
 
 app.get('/flush', function (req, res) {
   sonos.flush().then(() => {
     res.send("Success");
-  }).catch(err => { console.warn('Error occurred %j', err) })
+  }).catch(err => { console.warn('Error occurred %s', err); return err; })
 })
 
 
@@ -83,9 +83,9 @@ app.get('/next', function (req, res) {
       .then(success => {
         res.send(JSON.stringify(track, null, 2));
       })
-      .catch(err => { console.warn('Error occurred %j', err) })
+      .catch(err => { console.warn('Error occurred %s', err); return err; })
   })
-  .catch(err => { console.warn('Error occurred %j', err) })
+  .catch(err => { console.warn('Error occurred %s', err); return err; })
 })
 
 
@@ -94,7 +94,7 @@ app.get('/play', function (req, res) {
   sonos.play().then(success => {
     console.log('Play')
     res.send("Success");
-    }).catch(err => { console.warn('Error occurred %j', err) })
+    }).catch(err => { console.warn('Error occurred %s', err); return err; })
 })
 
 
@@ -111,7 +111,8 @@ app.get('/devices', function (req, res) {
       res.send(group_list);
     })
   }).catch(e => {
-    console.warn(' Error in discovery %j', e)
+    console.warn(' Error in discovery %s', e);
+    return err;
   })
 })
 
@@ -133,12 +134,13 @@ var server = app.listen(8081, function () {
       }
       console.log("Using ip address: " + ip_add)
       sonos = new Sonos(ip_add)
-      sonos.setSpotifyRegion(Regions.EU)
-      return ip_add
+      sonos.setSpotifyRegion(Regions.EU);
+      return ip_add;
     })
   })
   .catch(e => {
-    console.warn(' Error in discovery %j', e)
+    console.warn(' Error in discovery %s', e);
+    return err;
   });
 
    var host = server.address().address
